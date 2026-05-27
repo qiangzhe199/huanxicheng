@@ -187,52 +187,57 @@ if (typeof tailwind !== 'undefined') {
 <body>
 
 <!-- ==================== 登录页面 ==================== -->
-<div id="loginScreen" class="fixed inset-0 z-[100] login-bg flex items-center justify-center">
+<div id="loginScreen" class="fixed inset-0 z-[100] login-bg flex items-center justify-end">
   <!-- 3D粒子背景 -->
   <canvas id="particleCanvas"></canvas>
 
-  <!-- 登录卡片 -->
-  <div class="login-card rounded-3xl px-10 py-12 w-full max-w-md mx-4 text-center relative z-10 login-animate-in">
-    <!-- Logo -->
-    <div class="w-20 h-20 mx-auto mb-5 rounded-2xl overflow-hidden bg-white/10 backdrop-blur flex items-center justify-center shadow-2xl" style="box-shadow:0 20px 50px rgba(249,115,22,0.15)">
-      <img src="logo.png" alt="育见欢喜" class="w-full h-full object-contain p-1">
+  <!-- 粒子汇聚区域提示 -->
+  <div class="particle-hint" id="particleHint">
+    <span id="hintText"></span>
+  </div>
+
+  <!-- 登录卡片 — 右侧放置，不遮挡中央粒子动画 -->
+  <div class="login-card rounded-3xl px-8 py-10 w-full max-w-sm mr-12 md:mr-20 text-center relative z-10 login-animate-in" style="margin-right:max(48px, calc((100vw - 900px) / 4))">
+    <!-- Logo — 缩小 -->
+    <div class="w-14 h-14 mx-auto mb-4 rounded-xl overflow-hidden bg-white/10 backdrop-blur flex items-center justify-center" style="box-shadow:0 16px 40px rgba(249,115,22,0.12)">
+      <img src="logo.png" alt="育见欢喜" class="w-full h-full object-contain p-0.5">
     </div>
-    <h1 class="text-white text-2xl font-bold mb-1 tracking-wide">欢喜城</h1>
-    <p class="text-white/40 text-sm mb-8 tracking-widest">育见欢喜 · 官方资料站</p>
+    <h1 class="text-white text-lg font-bold mb-0.5 tracking-wide">欢喜城</h1>
+    <p class="text-white/30 text-xs mb-6 tracking-widest">育见欢喜 · 官方资料站</p>
 
     <!-- 输入区 -->
     <div class="text-left mb-2">
-      <label class="text-white/50 text-xs tracking-wide mb-2 block" id="pwdLabel">访问密码</label>
-      <div id="adminUserField" class="hidden mb-3">
+      <label class="text-white/40 text-[11px] tracking-wide mb-1.5 block" id="pwdLabel">访问密码</label>
+      <div id="adminUserField" class="hidden mb-2">
         <input type="text" id="adminUsername" placeholder="管理员账号"
-          class="login-input w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 transition-all" autocomplete="off">
+          class="login-input w-full px-4 py-2.5 rounded-xl text-white text-sm placeholder-white/20 transition-all" autocomplete="off">
       </div>
       <div class="relative">
-        <i class="fa fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-white/25"></i>
+        <i class="fa fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-white/20"></i>
         <input type="password" id="passwordInput" placeholder="请输入今日访问密码"
-          class="login-input w-full pl-11 pr-4 py-3.5 rounded-xl text-white text-sm placeholder-white/20 transition-all"
+          class="login-input w-full pl-10 pr-4 py-3 rounded-xl text-white text-sm placeholder-white/20 transition-all"
           autofocus autocomplete="off">
       </div>
     </div>
 
     <!-- 错误提示 -->
-    <div id="loginError" class="text-left text-red-400 text-xs mb-3 min-h-[20px] transition-all"></div>
+    <div id="loginError" class="text-left text-red-400 text-[11px] mb-2 min-h-[18px] transition-all"></div>
 
     <!-- 管理员切换 -->
-    <div class="text-right mb-3">
-      <button id="adminToggle" onclick="toggleAdminMode()" class="text-white/25 hover:text-orange-400 text-xs transition-colors">
+    <div class="text-right mb-2">
+      <button id="adminToggle" onclick="toggleAdminMode()" class="text-white/20 hover:text-orange-400 text-[11px] transition-colors">
         <i class="fa fa-user-secret mr-1"></i><span id="adminToggleText">管理员入口</span>
       </button>
     </div>
 
     <!-- 登录按钮 -->
     <button id="loginBtn" onclick="handleLogin()"
-      class="login-btn w-full py-3.5 rounded-xl font-semibold text-sm tracking-wide" style="box-shadow:0 8px 25px rgba(249,115,22,0.2)">
+      class="login-btn w-full py-3 rounded-xl font-semibold text-sm tracking-wide" style="box-shadow:0 6px 20px rgba(249,115,22,0.2)">
       <span id="loginBtnText"><i class="fa fa-sign-in mr-2"></i>验证访问</span>
     </button>
 
     <!-- 底部提示 -->
-    <div class="mt-6 flex items-center justify-center gap-2 text-white/15 text-[10px]">
+    <div class="mt-5 flex items-center justify-center gap-2 text-white/12 text-[10px]">
       <i class="fa fa-shield"></i>
       <span>安全连接 · 密码每日更新</span>
     </div>
@@ -556,330 +561,210 @@ if (typeof tailwind !== 'undefined') {
   sessionStorage.removeItem('auth_token');
   sessionStorage.removeItem('auth_time');
 
-  // ==================== Three.js 3D 粒子系统（动态加载，不阻塞页面） ====================
+  // ==================== Three.js 3D 粒子系统（增强版：6000+粒子，多重特效） ====================
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = src;
-      s.onload = resolve;
+      s.src = src; s.onload = resolve;
       s.onerror = () => reject(new Error('CDN load failed: ' + src));
       document.head.appendChild(s);
     });
   }
 
   async function initParticles() {
-    // 尝试多个CDN源加载Three.js
     if (!window.THREE) {
-      const cdns = [
-        'https://unpkg.com/three@0.160.0/build/three.min.js',
-        'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js',
-      ];
-      let loaded = false;
-      for (const cdn of cdns) {
-        try {
-          await loadScript(cdn);
-          if (window.THREE) { loaded = true; break; }
-        } catch(e) { continue; }
-      }
-      if (!loaded) {
-        console.warn('3D粒子系统暂不可用，使用静态背景');
-        return;
-      }
+      const cdns = ['https://unpkg.com/three@0.160.0/build/three.min.js','https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js'];
+      let ok=false;
+      for (const c of cdns) { try { await loadScript(c); if(window.THREE){ok=true;break;} } catch(e){} }
+      if(!ok){ console.warn('3D粒子系统暂不可用'); return; }
     }
 
   try {
-  const canvas = document.getElementById('particleCanvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  const canvas=document.getElementById('particleCanvas');
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(window.innerWidth,window.innerHeight);
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.5, 100);
-  camera.position.z = 12;
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,0.3,120);
+  camera.position.z=14;
+  scene.fog=new THREE.FogExp2(0x0f172a,0.00015);
 
-  // 柔和雾效 — 增加景深感
-  scene.fog = new THREE.FogExp2(0x0f172a, 0.00025);
-
-  // 创建发光粒子贴图
-  function createGlowTexture(innerColor, outerColor) {
-    const size = 128;
-    const c = document.createElement('canvas');
-    c.width = c.height = size;
-    const ctx = c.getContext('2d');
-    const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-    gradient.addColorStop(0, innerColor);
-    gradient.addColorStop(0.15, innerColor);
-    gradient.addColorStop(0.4, outerColor);
-    gradient.addColorStop(0.7, 'rgba(0,0,0,0)');
-    gradient.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
+  function mkTex(inner,outer){
+    const sz=128,c=document.createElement('canvas');c.width=c.height=sz;
+    const ctx=c.getContext('2d'),g=ctx.createRadialGradient(sz/2,sz/2,0,sz/2,sz/2,sz/2);
+    g.addColorStop(0,inner);g.addColorStop(0.15,inner);g.addColorStop(0.4,outer);
+    g.addColorStop(0.7,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,sz,sz);
     return new THREE.CanvasTexture(c);
   }
+  const gTex=mkTex('rgba(255,180,100,1)','rgba(249,115,22,0.5)');
+  const gTexS=mkTex('rgba(255,200,140,1)','rgba(251,146,60,0.35)');
+  const gTexW=mkTex('rgba(255,255,255,1)','rgba(255,255,255,0.4)');
+  const gTexB=mkTex('rgba(180,200,255,1)','rgba(100,150,255,0.3)');
 
-  const glowTex = createGlowTexture('rgba(255,180,100,1)', 'rgba(249,115,22,0.6)');
-  const glowTexSmall = createGlowTexture('rgba(255,200,140,1)', 'rgba(251,146,60,0.4)');
+  // ============ 主粒子群：4000粒子 7旋臂 ============
+  const MC=4000;
+  const mainGeo=new THREE.BufferGeometry();
+  const mainPos=new Float32Array(MC*3);
+  const mainSz=new Float32Array(MC);
+  const mainCol=new Float32Array(MC*3);
+  const colC=new THREE.Color('#ffb866'),colM=new THREE.Color('#f97316'),colO=new THREE.Color('#c2410c');
 
-  // ==================== 主粒子群 —— 螺旋星系结构 ====================
-  const mainCount = 1800;
-  const mainGeo = new THREE.BufferGeometry();
-  const mainPositions = new Float32Array(mainCount * 3);
-  const mainSizes = new Float32Array(mainCount);
-  const mainColors = new Float32Array(mainCount * 3);
-
-  const colorCore = new THREE.Color('#ffb866');
-  const colorMid = new THREE.Color('#f97316');
-  const colorOuter = new THREE.Color('#c2410c');
-
-  for (let i = 0; i < mainCount; i++) {
-    // 螺旋分布: 多条旋臂 + 随机散布
-    const arm = i % 5; // 5条旋臂
-    const armAngle = (arm / 5) * Math.PI * 2;
-    const radius = Math.pow(Math.random(), 0.6) * 14 + 0.5;
-    const spiralAngle = radius * 0.8 + armAngle;
-    const scatter = (Math.random() - 0.5) * (1.5 + radius * 0.3);
-
-    const x = Math.cos(spiralAngle + scatter) * radius;
-    const y = (Math.random() - 0.5) * (4.5 - radius * 0.2);
-    const z = Math.sin(spiralAngle + scatter) * radius + (Math.random() - 0.5) * 3;
-
-    mainPositions[i * 3] = x;
-    mainPositions[i * 3 + 1] = y;
-    mainPositions[i * 3 + 2] = z;
-
-    // 粒子大小 — 近大远小增加深度感
-    const distFromCenter = Math.sqrt(x*x + y*y + z*z);
-    mainSizes[i] = (0.03 + Math.random() * 0.1) * (1 - distFromCenter / 16);
-
-    // 颜色 — 内部暖金、外部深橙
-    const t = Math.min(distFromCenter / 14, 1);
-    const col = colorCore.clone().lerp(colorMid, t * 1.2).lerp(colorOuter, Math.max(0, t * 1.5 - 0.3));
-    mainColors[i * 3] = col.r;
-    mainColors[i * 3 + 1] = col.g;
-    mainColors[i * 3 + 2] = col.b;
+  for(let i=0;i<MC;i++){
+    const arm=i%7,armA=(arm/7)*Math.PI*2;
+    const r=Math.pow(Math.random(),0.55)*15+0.3;
+    const sa=r*0.75+armA;
+    const sc=(Math.random()-0.5)*(1.8+r*0.25);
+    const x=Math.cos(sa+sc)*r,y=(Math.random()-0.5)*(5-r*0.18),z=Math.sin(sa+sc)*r+(Math.random()-0.5)*3;
+    mainPos[i*3]=x;mainPos[i*3+1]=y;mainPos[i*3+2]=z;
+    const d=Math.sqrt(x*x+y*y+z*z);
+    mainSz[i]=(0.02+Math.random()*0.12)*(1-d/17);
+    const t=Math.min(d/15,1);
+    const cl=colC.clone().lerp(colM,t*1.2).lerp(colO,Math.max(0,t*1.5-0.3));
+    mainCol[i*3]=cl.r;mainCol[i*3+1]=cl.g;mainCol[i*3+2]=cl.b;
   }
+  const spiralArr=new Float32Array(mainPos);
 
-  // ==================== 保存原始螺旋位置 ====================
-  const spiralPositions = new Float32Array(mainPositions);
-
-  // ==================== 生成「欢喜」文字目标位置 ====================
-  const textCanvas = document.createElement('canvas');
-  textCanvas.width = 800;
-  textCanvas.height = 320;
-  const tctx = textCanvas.getContext('2d');
-  tctx.fillStyle = '#ffffff';
-  tctx.font = 'bold 220px "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
-  tctx.textAlign = 'center';
-  tctx.textBaseline = 'middle';
-  tctx.fillText('欢喜', 400, 160);
-  const imageData = tctx.getImageData(0, 0, 800, 320);
-  const textPixels = [];
-  for (let y = 0; y < 320; y += 2) {
-    for (let x = 0; x < 800; x += 2) {
-      const alpha = imageData.data[(y * 800 + x) * 4 + 3];
-      if (alpha > 100) {
-        textPixels.push({
-          tx: (x / 800 - 0.5) * 16,
-          ty: -(y / 320 - 0.5) * 6.4,
-          tz: (Math.random() - 0.5) * 1.5
-        });
-      }
+  // ============ 生成"欢喜"文字目标（偏左上方，避开右侧登录卡片） ============
+  const tCvs=document.createElement('canvas');tCvs.width=900;tCvs.height=360;
+  const tCtx=tCvs.getContext('2d');tCtx.fillStyle='#ffffff';
+  tCtx.font='bold 240px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  tCtx.textAlign='center';tCtx.textBaseline='middle';tCtx.fillText('欢喜',450,180);
+  const imgD=tCtx.getImageData(0,0,900,360);
+  const txtPx=[];
+  for(let y=0;y<360;y+=2){for(let x=0;x<900;x+=2){
+    if(imgD.data[(y*900+x)*4+3]>100){
+      txtPx.push({tx:(x/900-0.5)*16,ty:-(y/360-0.5)*6.4+0.5,tz:(Math.random()-0.5)*1.5});
     }
-  }
-  // 随机采样作为目标位置
-  const targetPositions = new Float32Array(mainCount * 3);
-  for (let i = 0; i < mainCount; i++) {
-    const p = textPixels[Math.floor(Math.random() * textPixels.length)];
-    targetPositions[i * 3] = p.tx + (Math.random() - 0.5) * 0.3;
-    targetPositions[i * 3 + 1] = p.ty + (Math.random() - 0.5) * 0.3;
-    targetPositions[i * 3 + 2] = p.tz + (Math.random() - 0.5) * 0.3;
-  }
+  }}
+  const targetArr=new Float32Array(MC*3);
+  for(let i=0;i<MC;i++){const p=txtPx[Math.floor(Math.random()*txtPx.length)];targetArr[i*3]=p.tx+(Math.random()-0.5)*0.3;targetArr[i*3+1]=p.ty+(Math.random()-0.5)*0.3;targetArr[i*3+2]=p.tz+(Math.random()-0.5)*0.3;}
 
-  mainGeo.setAttribute('position', new THREE.BufferAttribute(mainPositions, 3));
-  mainGeo.setAttribute('size', new THREE.BufferAttribute(mainSizes, 1));
-  mainGeo.setAttribute('color', new THREE.BufferAttribute(mainColors, 3));
+  mainGeo.setAttribute('position',new THREE.BufferAttribute(mainPos,3));
+  mainGeo.setAttribute('size',new THREE.BufferAttribute(mainSz,1));
+  mainGeo.setAttribute('color',new THREE.BufferAttribute(mainCol,3));
+  const mainMat=new THREE.PointsMaterial({map:gTex,size:0.3,blending:THREE.AdditiveBlending,depthWrite:false,depthTest:true,vertexColors:true,transparent:true,opacity:0.88});
+  const mainPoints=new THREE.Points(mainGeo,mainMat);scene.add(mainPoints);
 
-  const mainMat = new THREE.PointsMaterial({
-    map: glowTex,
-    size: 0.35,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    depthTest: true,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.85,
-  });
+  // ============ 背景星场：1000深蓝/白粒子 ============
+  const BC=1000;const bgGeo=new THREE.BufferGeometry();const bgPos=new Float32Array(BC*3);
+  for(let i=0;i<BC;i++){bgPos[i*3]=(Math.random()-0.5)*32;bgPos[i*3+1]=(Math.random()-0.5)*22;bgPos[i*3+2]=(Math.random()-0.5)*20-3;}
+  bgGeo.setAttribute('position',new THREE.BufferAttribute(bgPos,3));
+  const bgMat=new THREE.PointsMaterial({map:gTexB,size:0.16,blending:THREE.AdditiveBlending,depthWrite:false,depthTest:true,color:new THREE.Color('#8899cc'),transparent:true,opacity:0.4});
+  const bgPoints=new THREE.Points(bgGeo,bgMat);scene.add(bgPoints);
 
-  const mainPoints = new THREE.Points(mainGeo, mainMat);
-  scene.add(mainPoints);
-
-  // ==================== 轨道环 —— 增强结构感 ====================
-  const ringCount = 600;
-  const rings = [];
-  for (let r = 0; r < 3; r++) {
-    const ringGeo = new THREE.BufferGeometry();
-    const ringPositions = new Float32Array(ringCount * 3);
-    const ringRadius = 5 + r * 3.5;
-    const tiltX = (r - 1) * 0.45;
-    const tiltZ = r * 0.7;
-
-    for (let i = 0; i < ringCount; i++) {
-      const angle = (i / ringCount) * Math.PI * 2;
-      const jitter = (Math.random() - 0.5) * 0.6;
-      const rJitter = ringRadius + (Math.random() - 0.5) * 1.6;
-
-      const px = Math.cos(angle + jitter * 0.3) * rJitter;
-      const py = (Math.random() - 0.5) * 0.5;
-      const pz = Math.sin(angle + jitter * 0.3) * rJitter;
-
-      // 应用倾斜
-      const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
-      const cosZ = Math.cos(tiltZ), sinZ = Math.sin(tiltZ);
-      const ry = py * cosX - pz * sinX;
-      const rz = py * sinX + pz * cosX;
-      const rx = px * cosZ - rz * sinZ;
-
-      ringPositions[i * 3] = rx;
-      ringPositions[i * 3 + 1] = ry;
-      ringPositions[i * 3 + 2] = px * sinZ + rz * cosZ;
+  // ============ 轨道环：5圈 ============
+  const RC=500,rings=[];
+  for(let r=0;r<5;r++){
+    const rGeo=new THREE.BufferGeometry(),rPos=new Float32Array(RC*3);
+    const rRad=4.5+r*3.2,tx=(r-2)*0.4,tz=r*0.6;
+    for(let i=0;i<RC;i++){
+      const a=(i/RC)*Math.PI*2,j=(Math.random()-0.5)*0.5,rj=rRad+(Math.random()-0.5)*1.8;
+      const px=Math.cos(a+j*0.3)*rj,py=(Math.random()-0.5)*0.4,pz=Math.sin(a+j*0.3)*rj;
+      const cx=Math.cos(tx),sx=Math.sin(tx),cz=Math.cos(tz),sz=Math.sin(tz);
+      const ry2=py*cx-pz*sx,rz2=py*sx+pz*cx;
+      rPos[i*3]=px*cz-rz2*sz;rPos[i*3+1]=ry2;rPos[i*3+2]=px*sz+rz2*cz;
     }
-
-    ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPositions, 3));
-
-    const ringMat = new THREE.PointsMaterial({
-      map: glowTexSmall,
-      size: 0.12 + r * 0.04,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      depthTest: true,
-      color: new THREE.Color().setHSL(0.1, 1, 0.35 + r * 0.15),
-      transparent: true,
-      opacity: 0.5 + r * 0.15,
-    });
-
-    const ringMesh = new THREE.Points(ringGeo, ringMat);
-    ringMesh.userData = { rotSpeed: 0.0003 + r * 0.00015, tiltX, tiltZ, baseRadius: ringRadius, baseOpacity: 0.5 + r * 0.15 };
-    scene.add(ringMesh);
-    rings.push(ringMesh);
+    rGeo.setAttribute('position',new THREE.BufferAttribute(rPos,3));
+    const rMat=new THREE.PointsMaterial({map:gTexS,size:0.1+r*0.035,blending:THREE.AdditiveBlending,depthWrite:false,depthTest:true,color:new THREE.Color().setHSL(0.1,1,0.3+r*0.14),transparent:true,opacity:0.45+r*0.12});
+    const rm=new THREE.Points(rGeo,rMat);rm.userData={rs:0.00025+r*0.00013,tx,tz,bo:0.45+r*0.12};
+    scene.add(rm);rings.push(rm);
   }
 
-  // ==================== 核心光球 ====================
-  const coreGeo = new THREE.BufferGeometry();
-  const coreCount = 300;
-  const corePositions = new Float32Array(coreCount * 3);
-  for (let i = 0; i < coreCount; i++) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const r = 0.4 + Math.random() * 1.6;
-    corePositions[i * 3] = Math.sin(phi) * Math.cos(theta) * r;
-    corePositions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * r;
-    corePositions[i * 3 + 2] = Math.cos(phi) * r;
-  }
-  coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3));
-  const coreMat = new THREE.PointsMaterial({
-    map: glowTex,
-    size: 0.25,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    depthTest: true,
-    color: new THREE.Color('#ffe0b0'),
-    transparent: true,
-    opacity: 1,
-  });
-  const corePoints = new THREE.Points(coreGeo, coreMat);
-  scene.add(corePoints);
+  // ============ 核心光球：500粒子 ============
+  const CC=500;const cGeo=new THREE.BufferGeometry();const cPos=new Float32Array(CC*3);
+  for(let i=0;i<CC;i++){const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),rr=0.3+Math.random()*1.8;cPos[i*3]=Math.sin(ph)*Math.cos(th)*rr;cPos[i*3+1]=Math.sin(ph)*Math.sin(th)*rr;cPos[i*3+2]=Math.cos(ph)*rr;}
+  cGeo.setAttribute('position',new THREE.BufferAttribute(cPos,3));
+  const cMat=new THREE.PointsMaterial({map:gTexW,size:0.2,blending:THREE.AdditiveBlending,depthWrite:false,depthTest:true,color:new THREE.Color('#ffe8c0'),transparent:true,opacity:1});
+  const corePoints=new THREE.Points(cGeo,cMat);scene.add(corePoints);
 
-  // ==================== 鼠标交互 ====================
-  const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
-  document.addEventListener('mousemove', e => {
-    mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse.ty = -(e.clientY / window.innerHeight) * 2 + 1;
-  });
-  document.addEventListener('touchmove', e => {
-    mouse.tx = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-    mouse.ty = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
-  }, { passive: true });
+  // ============ 流星粒子：200个快速穿梭 ============
+  const shC=200;const shGeo=new THREE.BufferGeometry();const shPos=new Float32Array(shC*3);const shVel=new Float32Array(shC*3);
+  for(let i=0;i<shC;i++){shPos[i*3]=(Math.random()-0.5)*22;shPos[i*3+1]=(Math.random()-0.5)*14;shPos[i*3+2]=(Math.random()-0.5)*10;shVel[i*3]=(Math.random()-0.5)*0.035;shVel[i*3+1]=(Math.random()-0.5)*0.025;shVel[i*3+2]=(Math.random()-0.5)*0.018;}
+  shGeo.setAttribute('position',new THREE.BufferAttribute(shPos,3));
+  const shMat=new THREE.PointsMaterial({map:gTexW,size:0.07,blending:THREE.AdditiveBlending,depthWrite:false,depthTest:true,color:new THREE.Color('#ffffff'),transparent:true,opacity:0.5});
+  const shootPoints=new THREE.Points(shGeo,shMat);scene.add(shootPoints);
 
-  // ==================== 动画循环 ====================
-  const CYCLE_DURATION = 20; // 整个循环周期（秒）
-  const CONVERGE_START = 7;  // 开始汇聚时间
-  const CONVERGE_END = 9.5;  // 汇聚完成时间
-  const DISPERSE_START = 14; // 开始散开时间
-  const DISPERSE_END = 16.5; // 散开完成时间
+  // ============ 鼠标交互 ============
+  const mouse={x:0,y:0,tx:0,ty:0};
+  document.addEventListener('mousemove',e=>{mouse.tx=(e.clientX/window.innerWidth)*2-1;mouse.ty=-(e.clientY/window.innerHeight)*2+1;});
+  document.addEventListener('touchmove',e=>{mouse.tx=(e.touches[0].clientX/window.innerWidth)*2-1;mouse.ty=-(e.touches[0].clientY/window.innerHeight)*2+1;},{passive:true});
 
-  function easeInOutCubic(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
+  // ============ 动画循环 ============
+  const CYCLE=22,CV_START=5,CV_END=8.5,HOLD_END=14,DP_START=14,DP_END=17.5;
+  function easeIO(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+  let aStart=performance.now()/1000;
+  const posArr=mainGeo.attributes.position.array;
+  const bgPosArr=bgGeo.attributes.position.array;
+  const hintEl=document.getElementById('hintText');
+  var lastHint='';
 
-  let animStart = performance.now() / 1000;
-  const posArray = mainGeo.attributes.position.array;
-
-  function animate() {
+  function animate(){
     requestAnimationFrame(animate);
-    const elapsed = (performance.now() / 1000 - animStart) % CYCLE_DURATION;
+    const et=(performance.now()/1000-aStart)%CYCLE;
+    let cp=0;
+    if(et>=CV_START&&et<CV_END){cp=easeIO((et-CV_START)/(CV_END-CV_START));}
+    else if(et>=CV_END&&et<DP_START){cp=1;}
+    else if(et>=DP_START&&et<DP_END){cp=1-easeIO((et-DP_START)/(DP_END-DP_START));}
 
-    // 计算汇聚进度 (0 = 螺旋, 1 = 文字)
-    let convergeProgress = 0;
-    if (elapsed >= CONVERGE_START && elapsed < CONVERGE_END) {
-      const t = (elapsed - CONVERGE_START) / (CONVERGE_END - CONVERGE_START);
-      convergeProgress = easeInOutCubic(t);
-    } else if (elapsed >= CONVERGE_END && elapsed < DISPERSE_START) {
-      convergeProgress = 1;
-    } else if (elapsed >= DISPERSE_START && elapsed < DISPERSE_END) {
-      const t = (elapsed - DISPERSE_START) / (DISPERSE_END - DISPERSE_START);
-      convergeProgress = 1 - easeInOutCubic(t);
+    // 主粒子插值
+    for(let i=0;i<MC*3;i++){posArr[i]=spiralArr[i]+(targetArr[i]-spiralArr[i])*cp;}
+    mainGeo.attributes.position.needsUpdate=true;
+
+    const rf=1-cp;
+    mainPoints.rotation.y+=0.00035*rf;mainPoints.rotation.x+=0.00008*rf;mainPoints.rotation.z+=0.00006*rf;
+
+    // 提示文字：粒子汇聚时显示状态
+    var ht='';
+    if(cp>0.05&&cp<0.5){ht='粒子正在汇聚...';}
+    else if(cp>=0.5&&cp<0.9){ht='';}
+    else if(cp>=0.9){ht='欢喜';}
+    if(ht!==lastHint){if(hintEl){hintEl.textContent=ht;lastHint=ht;}}
+
+    // 鼠标视差
+    mouse.x+=(mouse.tx-mouse.x)*0.03;mouse.y+=(mouse.ty-mouse.y)*0.03;
+    camera.position.x+=(mouse.x*1.5-camera.position.x)*0.02;
+    camera.position.y+=(mouse.y*1-camera.position.y)*0.02;
+    camera.lookAt(0,0.5,0);
+
+    // 核心光球：汇聚时呼吸效果
+    const pulse=1+cp*2+Math.sin(et*3)*0.15*cp;
+    cMat.size=0.2*pulse;cMat.opacity=1-cp*0.3;
+    corePoints.rotation.y-=0.001;corePoints.rotation.x+=0.0004;
+
+    // 轨道环
+    rings.forEach(rng=>{rng.rotation.y+=rng.userData.rs*rf;rng.rotation.x+=rng.userData.rs*0.3*rf;rng.material.opacity=rng.userData.bo*rf;});
+
+    // 背景星场旋转+漂浮
+    bgPoints.rotation.y+=0.0001;bgPoints.rotation.x+=0.00005;
+    for(let i=0;i<BC;i++){bgPosArr[i*3+1]+=Math.sin(et*0.3+i*0.1)*0.0012;if(bgPosArr[i*3+1]>11)bgPosArr[i*3+1]=-11;if(bgPosArr[i*3+1]<-11)bgPosArr[i*3+1]=11;}
+    bgGeo.attributes.position.needsUpdate=true;
+
+    // 流星穿梭
+    const shArr=shGeo.attributes.position.array;
+    for(let i=0;i<shC;i++){
+      shArr[i*3]+=shVel[i*3];shArr[i*3+1]+=shVel[i*3+1];shArr[i*3+2]+=shVel[i*3+2];
+      if(Math.abs(shArr[i*3])>12)shArr[i*3]*=-0.9;
+      if(Math.abs(shArr[i*3+1])>8)shArr[i*3+1]*=-0.9;
+      if(Math.abs(shArr[i*3+2])>6)shArr[i*3+2]*=-0.9;
     }
+    shGeo.attributes.position.needsUpdate=true;
+    shMat.opacity=0.15+cp*0.55;
 
-    // 插值粒子位置
-    for (let i = 0; i < mainCount * 3; i++) {
-      posArray[i] = spiralPositions[i] + (targetPositions[i] - spiralPositions[i]) * convergeProgress;
-    }
-    mainGeo.attributes.position.needsUpdate = true;
-
-    // 汇聚时不旋转，螺旋时旋转
-    const rotFactor = 1 - convergeProgress;
-    mainPoints.rotation.y += 0.0004 * rotFactor;
-    mainPoints.rotation.x += 0.0001 * rotFactor;
-    mainPoints.rotation.z += 0.00008 * rotFactor;
-
-    // 鼠标平滑跟随
-    mouse.x += (mouse.tx - mouse.x) * 0.03;
-    mouse.y += (mouse.ty - mouse.y) * 0.03;
-
-    // 相机轻微跟随鼠标 — 视差效果
-    camera.position.x += (mouse.x * 1.8 - camera.position.x) * 0.02;
-    camera.position.y += (mouse.y * 1.2 - camera.position.y) * 0.02;
-    camera.lookAt(0, 0, 0);
-
-    // 核心光球 — 汇聚时变亮变大
-    const pulse = 1 + convergeProgress * 1.2;
-    coreMat.size = 0.25 * pulse;
-    coreMat.opacity = 1 - convergeProgress * 0.5;
-    corePoints.rotation.y -= 0.0008;
-    corePoints.rotation.x += 0.0003;
-
-    // 轨道环 — 汇聚时淡出
-    rings.forEach(ring => {
-      ring.rotation.y += ring.userData.rotSpeed * rotFactor;
-      ring.rotation.x += ring.userData.rotSpeed * 0.3 * rotFactor;
-      ring.material.opacity = ring.userData.baseOpacity * rotFactor;
-    });
-
-    renderer.render(scene, camera);
+    renderer.render(scene,camera);
   }
   animate();
 
-  // ==================== 窗口大小适配 ====================
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
+  window.addEventListener('resize',()=>{
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    camera.aspect=window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
   });
 
-  } catch (e) {
-    console.warn('3D粒子系统渲染失败，使用静态背景');
-  }
+  } catch (e) { console.warn('3D粒子系统渲染失败'); }
   } // end initParticles
+
 
   // 启动粒子系统（不阻塞页面）
   initParticles();
