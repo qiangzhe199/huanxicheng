@@ -8,24 +8,90 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<!-- 关键内联样式：确保登录页在CDN加载前就能正常显示 -->
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:#0f172a;color:#fff}
+  .flex{display:flex}.items-center{align-items:center}.justify-center{justify-content:center}
+  .text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}
+  .text-white{color:#fff}.text-xs{font-size:.75rem}.text-sm{font-size:.875rem}.text-lg{font-size:1.125rem}.text-2xl{font-size:1.5rem}
+  .font-bold{font-weight:700}.font-semibold{font-weight:600}.font-medium{font-weight:500}
+  .tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}
+  .w-full{width:100%}.h-screen{height:100vh}.overflow-hidden{overflow:hidden}
+  .max-w-md{max-width:28rem}.mx-auto{margin-left:auto;margin-right:auto}.mx-4{margin-left:1rem;margin-right:1rem}
+  .mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-8{margin-bottom:2rem}
+  .mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}
+  .px-4{padding-left:1rem;padding-right:1rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}
+  .py-3{padding-top:.75rem;padding-bottom:.75rem}.py-3\.5{padding-top:.875rem;padding-bottom:.875rem}.py-12{padding-top:3rem;padding-bottom:3rem}
+  .pl-11{padding-left:2.75rem}.pr-4{padding-right:1rem}.p-0\.5{padding:.125rem}.p-1{padding:.25rem}
+  .rounded-xl{border-radius:.75rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}
+  .shadow-2xl{box-shadow:0 25px 50px -12px rgba(0,0,0,.25)}
+  .shadow-lg{box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}
+  .border{border:1px solid rgba(255,255,255,.08)}
+  .transition-all{transition:all .3s}.transition-colors{transition:color .3s,background-color .3s}
+  .relative{position:relative}.absolute{position:absolute}.fixed{position:fixed}
+  .inset-0{top:0;right:0;bottom:0;left:0}
+  .-translate-y-1\/2{transform:translateY(-50%)}.-translate-x-1\/2{transform:translateX(-50%)}
+  .left-1\/2{left:50%}.top-1\/2{top:50%}.bottom-8{bottom:2rem}
+  .hidden{display:none}
+  .cursor-pointer{cursor:pointer}.select-none{user-select:none}.pointer-events-none{pointer-events:none}
+  .min-h-\[20px\]{min-height:20px}
+  .space-y-1>*+*{margin-top:.25rem}
+  .w-5{width:1.25rem}.w-10{width:2.5rem}.w-20{width:5rem}.h-20{height:5rem}
+  .overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}
+  .object-contain{object-fit:contain}
+  .backdrop-blur{backdrop-filter:blur(20px)}
+  .placeholder-white\/20::placeholder{color:rgba(255,255,255,.2)}
+  /* 登录核心样式 */
+  .login-bg{background:linear-gradient(135deg,#1e293b,#0f172a,#1a1a2e,#16213e)}
+  .login-card{background:rgba(255,255,255,.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 25px 60px rgba(0,0,0,.4)}
+  .login-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);outline:none;transition:all .3s}
+  .login-input:focus{border-color:rgba(249,115,22,.5);box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+  .login-btn{background:linear-gradient(135deg,#f97316,#ea580c);border:none;cursor:pointer;transition:all .3s}
+  .login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(249,115,22,.35)}
+  .login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .opacity-0{opacity:0}.opacity-70{opacity:.7}.opacity-85{opacity:.85}
+  .z-10{z-index:10}.z-\[100\]{z-index:100}
+  .shadow-orange-500\/20{box-shadow:0 4px 16px rgba(249,115,22,.2)}
+  .shadow-orange-500\/25{box-shadow:0 8px 25px rgba(249,115,22,.25)}
+  .bg-white\/10{background:rgba(255,255,255,.1)}
+  .bg-green-500{background:#22c55e}
+  .text-white\/10{color:rgba(255,255,255,.1)}.text-white\/15{color:rgba(255,255,255,.15)}.text-white\/20{color:rgba(255,255,255,.2)}
+  .text-white\/25{color:rgba(255,255,255,.25)}.text-white\/40{color:rgba(255,255,255,.4)}.text-white\/50{color:rgba(255,255,255,.5)}
+  .text-white\/60{color:rgba(255,255,255,.6)}.text-white\/70{color:rgba(255,255,255,.7)}.text-white\/80{color:rgba(255,255,255,.8)}
+  .text-orange-400{color:#fb923c}.text-orange-500{color:#f97316}
+  .text-red-400{color:#f87171}.text-green-400{color:#4ade80}
+  .text-gray-400{color:#9ca3af}.text-gray-500{color:#6b7280}.text-gray-700{color:#374151}.text-gray-800{color:#1f2937}
+  .bg-orange-500{background:#f97316}
+  .text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}
+  .w-9{width:2.25rem}.h-9{height:2.25rem}
+  .from-orange-400{--tw-gradient-from:#fb923c}.to-orange-600{--tw-gradient-to:#ea580c}
+  .bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-from),var(--tw-gradient-to))}
+  .bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gradient-from),var(--tw-gradient-to))}
+  .from-red-500{--tw-gradient-from:#ef4444}.to-red-700{--tw-gradient-to:#b91c1c}
+  .inline-block{display:inline-block}.block{display:block}
+  .shadow-md{box-shadow:0 4px 6px -1px rgba(0,0,0,.1)}
+  .gap-2{gap:.5rem}.gap-3{gap:.75rem}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+</style>
 <script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        brand: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
-        warm: { 50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 300: '#fde047', 400: '#facc15', 500: '#eab308' },
-        slate: { 750: '#2d3348' }
+// Tailwind CDN 可能因网络原因未加载，仅在可用时配置
+if (typeof tailwind !== 'undefined') {
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+          warm: { 50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 300: '#fde047', 400: '#facc15', 500: '#eab308' },
+          slate: { 750: '#2d3348' }
+        }
       }
     }
-  }
+  };
 }
 </script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
-  * { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  * { font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif; }
   body { background: #f1f5f9; }
   .sidebar { transition: transform 0.3s ease; }
   .file-card { transition: all 0.25s ease; }
@@ -1457,6 +1523,26 @@ document.getElementById('previewModal').addEventListener('click', function(e) {
 </script>
 
 </div><!-- /#appContent -->
+
+<!-- 非关键资源：在页面底部异步加载，不阻塞登录 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+// Tailwind CDN 加载后配置自定义颜色
+if (typeof tailwind !== 'undefined') {
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+          warm: { 50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 300: '#fde047', 400: '#facc15', 500: '#eab308' },
+          slate: { 750: '#2d3348' }
+        }
+      }
+    }
+  };
+}
+</script>
 
 </body>
 </html>
