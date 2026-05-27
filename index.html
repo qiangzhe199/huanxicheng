@@ -10,8 +10,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-<script>window.THREE_CDN_FAILED=!window.THREE;if(window.THREE_CDN_FAILED){document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"><\/script>')}</script>
 <script>
 tailwind.config = {
   theme: {
@@ -648,7 +646,37 @@ tailwind.config = {
   sessionStorage.removeItem('auth_token');
   sessionStorage.removeItem('auth_time');
 
-  // ==================== Three.js 3D 粒子系统（try-catch 保证不影响登录） ====================
+  // ==================== Three.js 3D 粒子系统（动态加载，不阻塞页面） ====================
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('CDN load failed: ' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function initParticles() {
+    // 尝试多个CDN源加载Three.js
+    if (!window.THREE) {
+      const cdns = [
+        'https://unpkg.com/three@0.160.0/build/three.min.js',
+        'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js',
+      ];
+      let loaded = false;
+      for (const cdn of cdns) {
+        try {
+          await loadScript(cdn);
+          if (window.THREE) { loaded = true; break; }
+        } catch(e) { continue; }
+      }
+      if (!loaded) {
+        console.warn('3D粒子系统暂不可用，使用静态背景');
+        return;
+      }
+    }
+
   try {
   const canvas = document.getElementById('particleCanvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -939,10 +967,12 @@ tailwind.config = {
   });
 
   } catch (e) {
-    // Three.js 粒子系统加载失败，使用 CSS 渐变作为降级背景
-    console.warn('3D粒子系统暂不可用，使用静态背景');
-    document.querySelector('.login-bg').style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 40%, #1a1a2e 70%, #16213e 100%)';
+    console.warn('3D粒子系统渲染失败，使用静态背景');
   }
+  } // end initParticles
+
+  // 启动粒子系统（不阻塞页面）
+  initParticles();
 })();
 
 // 显示主应用
