@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>欢喜城 · 育见欢喜官方资料网站</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script>window.THREE_CDN_FAILED=!window.THREE;if(window.THREE_CDN_FAILED){document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"><\/script>')}</script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+        warm: { 50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 300: '#fde047', 400: '#facc15', 500: '#eab308' },
+        slate: { 750: '#2d3348' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+  * { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  body { background: #f1f5f9; }
+  .sidebar { transition: transform 0.3s ease; }
+  .file-card { transition: all 0.25s ease; }
+  .file-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15); }
+  .gradient-header { background: linear-gradient(135deg, #f97316 0%, #ea580c 30%, #c2410c 70%, #9a3412 100%); }
+  .gradient-sidebar { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+  .stat-card { transition: transform 0.2s ease; }
+  .stat-card:hover { transform: translateY(-2px); }
+  .btn-primary { background: linear-gradient(135deg, #f97316, #ea580c); transition: all 0.2s; }
+  .btn-primary:hover { background: linear-gradient(135deg, #fb923c, #f97316); box-shadow: 0 4px 16px rgba(249,115,22,0.35); }
+  .category-item { transition: all 0.2s; }
+  .category-item:hover, .category-item.active { background: rgba(249,115,22,0.15); color: #fb923c; border-left: 3px solid #f97316; }
+  .file-icon-word { color: #2563eb; }
+  .file-icon-excel { color: #16a34a; }
+  .file-icon-ppt { color: #dc2626; }
+  .file-icon-pdf { color: #ef4444; }
+  .file-icon-img { color: #a855f7; }
+  .file-icon-zip { color: #6366f1; }
+  .toggle-checkbox:checked ~ .dot { transform: translateX(100%); }
+  .toggle-checkbox:checked ~ .toggle-bg { background: #f97316; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeInUp 0.5s ease forwards; }
+  .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+  .upload-zone { border: 2px dashed #cbd5e1; transition: all 0.3s; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: #f97316; background: rgba(249,115,22,0.05); }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  img { image-rendering: auto; }
+  /* ========== 登录页面样式 ========== */
+  .login-bg {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 40%, #1a1a2e 70%, #16213e 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .login-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(249,115,22,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(234,88,12,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(251,146,60,0.05) 0%, transparent 40%);
+    animation: bgShift 20s ease-in-out infinite;
+  }
+  @keyframes bgShift {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(1%, -1%); }
+    66% { transform: translate(-1%, 1%); }
+  }
+  .login-card {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .login-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s;
+  }
+  .login-input:focus {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(249,115,22,0.5);
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+    outline: none;
+  }
+  .login-input.error {
+    border-color: rgba(239,68,68,0.6);
+    animation: shake 0.5s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  .login-btn {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    transition: all 0.3s;
+  }
+  .login-btn:hover { background: linear-gradient(135deg, #fb923c, #f97316); box-shadow: 0 8px 25px rgba(249,115,22,0.35); transform: translateY(-1px); }
+  .login-btn:active { transform: translateY(0); }
+  .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .login-animate-in { animation: fadeInScale 0.6s ease forwards; }
+  #particleCanvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+</style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+<!-- ==================== 登录页面 ==================== -->
+<div id="loginScreen" class="fixed inset-0 z-[100] login-bg flex items-center justify-center">
+  <!-- 3D粒子背景 -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- 登录卡片 -->
+  <div class="login-card rounded-3xl px-10 py-12 w-full max-w-md mx-4 text-center relative z-10 login-animate-in">
+    <!-- Logo -->
+    <div class="w-20 h-20 mx-auto mb-5 rounded-2xl overflow-hidden bg-white/10 backdrop-blur flex items-center justify-center shadow-2xl shadow-orange-500/20">
+      <img src="logo.png" alt="育见欢喜" class="w-full h-full object-contain p-1">
+    </div>
+    <h1 class="text-white text-2xl font-bold mb-1 tracking-wide">欢喜城</h1>
+    <p class="text-white/40 text-sm mb-8 tracking-widest">育见欢喜 · 官方资料站</p>
+
+    <!-- 输入区 -->
+    <div class="text-left mb-2">
+      <label class="text-white/50 text-xs tracking-wide mb-2 block" id="pwdLabel">访问密码</label>
+      <div id="adminUserField" class="hidden mb-3">
+        <input type="text" id="adminUsername" placeholder="管理员账号"
+          class="login-input w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 transition-all" autocomplete="off">
+      </div>
+      <div class="relative">
+        <i class="fa fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-white/25"></i>
+        <input type="password" id="passwordInput" placeholder="请输入今日访问密码"
+          class="login-input w-full pl-11 pr-4 py-3.5 rounded-xl text-white text-sm placeholder-white/20 transition-all"
+          autofocus autocomplete="off">
+      </div>
+    </div>
+
+    <!-- 错误提示 -->
+    <div id="loginError" class="text-left text-red-400 text-xs mb-3 min-h-[20px] transition-all"></div>
+
+    <!-- 管理员切换 -->
+    <div class="text-right mb-3">
+      <button id="adminToggle" onclick="toggleAdminMode()" class="text-white/25 hover:text-orange-400 text-xs transition-colors">
+        <i class="fa fa-user-secret mr-1"></i><span id="adminToggleText">管理员入口</span>
+      </button>
+    </div>
+
+    <!-- 登录按钮 -->
+    <button id="loginBtn" onclick="handleLogin()"
+      class="login-btn w-full py-3.5 rounded-xl text-white font-semibold text-sm tracking-wide shadow-lg shadow-orange-500/25">
+      <span id="loginBtnText"><i class="fa fa-sign-in mr-2"></i>验证访问</span>
+    </button>
+
+    <!-- 底部提示 -->
+    <div class="mt-6 flex items-center justify-center gap-2 text-white/15 text-[10px]">
+      <i class="fa fa-shield"></i>
+      <span>安全连接 · 密码每日更新</span>
+    </div>
+  </div>
+
+  <!-- 底部日期水印 -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/10 text-xs tracking-widest select-none" id="dateWatermark"></div>
+</div>
+
+<!-- ==================== 主应用内容 ==================== -->
+<div id="appContent" class="hidden">
+
+<!-- ==================== 侧边栏 ==================== -->
+<aside class="sidebar gradient-sidebar w-64 flex-shrink-0 flex flex-col text-white h-full z-20 shadow-2xl">
+  <!-- Logo -->
+  <div class="px-5 py-6 border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl overflow-hidden bg-white/10 flex items-center justify-center shadow-lg shadow-orange-500/30">
+        <img src="logo.png" alt="育见欢喜" class="w-full h-full object-contain p-0.5">
+      </div>
+      <div>
+        <h1 class="text-sm font-bold tracking-wide">欢喜城</h1>
+        <p class="text-[10px] text-white/50 tracking-wider">育见欢喜 · 官方资料站</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导航菜单 -->
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <p class="px-3 text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-3">主菜单</p>
+    <a href="#" class="category-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer">
+      <i class="fa fa-th-large w-5 text-center"></i> 全部文件
+      <span class="ml-auto bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">48</span>
+    </a>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer">
+      <i class="fa fa-star w-5 text-center text-yellow-400"></i> 常用收藏
+      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">12</span>
+    </a>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer">
+      <i class="fa fa-clock-o w-5 text-center"></i> 最近使用
+    </a>
+
+    <p class="px-3 pt-5 text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-3">文件分类</p>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="doc">
+      <i class="fa fa-file-word-o w-5 text-center text-blue-400"></i> Word 文档
+      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">10</span>
+    </a>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="xls">
+      <i class="fa fa-file-excel-o w-5 text-center text-green-400"></i> Excel 表格
+      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">8</span>
+    </a>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="ppt">
+      <i class="fa fa-file-powerpoint-o w-5 text-center text-red-400"></i> PPT 演示
+      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">8</span>
+    </a>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="pdf">
+      <i class="fa fa-file-pdf-o w-5 text-center text-red-300"></i> PDF 资料
+      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">7</span>
+    </a>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="img">
+      <i class="fa fa-file-image-o w-5 text-center text-purple-400"></i> 图片素材
+      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">10</span>
+    </a>
+    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="zip">
+      <i class="fa fa-file-archive-o w-5 text-center text-indigo-400"></i> 压缩包
+      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">5</span>
+    </a>
+  </nav>
+
+  <!-- 底部存储信息 -->
+  <div class="px-4 py-4 border-t border-white/10">
+    <div class="text-[10px] text-white/40 mb-1.5">已使用存储空间</div>
+    <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+      <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width:4.7%"></div>
+    </div>
+    <div class="text-[10px] text-white/40 mt-1.5">23.7 GB / 500 GB</div>
+  </div>
+</aside>
+
+<!-- ==================== 主内容区 ==================== -->
+<main class="flex-1 flex flex-col h-full overflow-hidden">
+
+  <!-- 顶部导航 -->
+  <header class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 z-10">
+    <div class="flex items-center gap-4">
+      <button class="text-gray-500 hover:text-gray-700 lg:hidden" onclick="document.querySelector('.sidebar').classList.toggle('-translate-x-full')">
+        <i class="fa fa-bars text-lg"></i>
+      </button>
+      <div class="relative">
+        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input type="text" id="searchInput" placeholder="搜索文件名称..."
+          class="w-72 pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white transition-all">
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="openUploadModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-xl font-medium shadow-lg shadow-orange-500/20">
+        <i class="fa fa-cloud-upload mr-1.5"></i> 上传文件
+      </button>
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-sm shadow-md cursor-pointer" title="管理员">
+        管
+      </div>
+    </div>
+  </header>
+
+  <!-- 滚动内容区 -->
+  <div class="flex-1 overflow-y-auto px-6 py-6">
+
+    <!-- 欢迎横幅 -->
+    <div class="gradient-header rounded-2xl p-6 mb-6 text-white shadow-xl shadow-orange-500/15 animate-in" style="animation-delay: 0.05s">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold mb-1">欢迎回来 👋</h2>
+          <p class="text-white/70 text-sm">欢喜城 · 育见欢喜官方资料站 — 公司所有文件资源统一管理，高效协作从此开始。</p>
+        </div>
+        <div class="hidden md:flex items-center gap-2 bg-white/15 rounded-xl px-4 py-3">
+          <i class="fa fa-folder-open text-2xl text-orange-200"></i>
+          <div>
+            <div class="text-2xl font-bold">48</div>
+            <div class="text-[10px] text-white/60">资源文件</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.1s">
+        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+          <i class="fa fa-file-word-o text-blue-500 text-xl"></i>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-800">10</div>
+          <div class="text-[11px] text-gray-400">Word 文档</div>
+        </div>
+      </div>
+      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.15s">
+        <div class="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+          <i class="fa fa-file-excel-o text-green-500 text-xl"></i>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-800">8</div>
+          <div class="text-[11px] text-gray-400">Excel 表格</div>
+        </div>
+      </div>
+      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.2s">
+        <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+          <i class="fa fa-file-powerpoint-o text-red-500 text-xl"></i>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-800">8</div>
+          <div class="text-[11px] text-gray-400">PPT 演示</div>
+        </div>
+      </div>
+      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.25s">
+        <div class="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+          <i class="fa fa-file-image-o text-purple-500 text-xl"></i>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-gray-800">10</div>
+          <div class="text-[11px] text-gray-400">图片素材</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+      <div class="flex items-center gap-2">
+        <h3 class="text-base font-bold text-gray-800" id="sectionTitle">全部文件</h3>
+        <span class="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded-full" id="fileCount">48 个文件</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="sortSelect" class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer">
+          <option value="newest">最新上传</option>
+          <option value="oldest">最早上传</option>
+          <option value="name">名称排序</option>
+          <option value="size">文件大小</option>
+        </select>
+        <div class="flex bg-gray-100 rounded-lg p-1">
+          <button class="view-btn active px-3 py-1.5 rounded-md text-sm transition-all" data-view="grid" onclick="setView('grid')">
+            <i class="fa fa-th"></i>
+          </button>
+          <button class="view-btn px-3 py-1.5 rounded-md text-sm text-gray-400 transition-all" data-view="list" onclick="setView('list')">
+            <i class="fa fa-list"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 文件网格 -->
+    <div id="fileGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- JS 动态填充 -->
+    </div>
+
+    <!-- 空状态 -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <div class="text-6xl mb-4">📭</div>
+      <h3 class="text-lg font-bold text-gray-500 mb-1">没有找到匹配的文件</h3>
+      <p class="text-sm text-gray-400">试试调整搜索条件或换个关键词</p>
+    </div>
+
+    <!-- 加载更多 -->
+    <div class="text-center mt-8 pb-6">
+      <button class="text-sm text-orange-500 hover:text-orange-600 font-medium px-6 py-2.5 rounded-xl border border-orange-200 hover:bg-orange-50 transition-all">
+        <i class="fa fa-refresh mr-1"></i> 加载更多
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<!-- ==================== 上传弹窗 ==================== -->
+<div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+  <div class="modal-overlay absolute inset-0" onclick="closeUploadModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl animate-in z-10">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <h3 class="text-lg font-bold text-gray-800">
+        <i class="fa fa-cloud-upload text-orange-500 mr-2"></i>上传文件
+      </h3>
+      <button onclick="closeUploadModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="p-6">
+      <div class="upload-zone rounded-2xl p-10 text-center cursor-pointer" id="dropZone">
+        <div class="text-5xl mb-3">📁</div>
+        <p class="text-gray-700 font-medium mb-1">拖拽文件到此处上传</p>
+        <p class="text-xs text-gray-400 mb-4">支持 Word、Excel、PPT、PDF、图片、压缩包等格式</p>
+        <button class="btn-primary text-white text-sm px-6 py-2.5 rounded-xl font-medium">
+          <i class="fa fa-folder-open mr-1.5"></i> 选择文件
+        </button>
+        <p class="text-[10px] text-gray-400 mt-3">单个文件最大 200MB，图片将保持原始清晰度</p>
+      </div>
+      <div class="mt-4 flex items-center gap-2 text-xs text-gray-400">
+        <i class="fa fa-check-circle text-green-500"></i>
+        <span>图片上传不压缩，保持原始画质</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 预览弹窗 ==================== -->
+<div id="previewModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+  <div class="modal-overlay absolute inset-0" onclick="closePreviewModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 shadow-2xl animate-in z-10">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <h3 class="text-lg font-bold text-gray-800" id="previewTitle">文件预览</h3>
+      <button onclick="closePreviewModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="p-6" id="previewContent"></div>
+  </div>
+</div>
+
+<!-- ==================== Toast 提示 ==================== -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden">
+  <div class="bg-gray-900 text-white text-sm px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2">
+    <i class="fa fa-check-circle text-green-400"></i>
+    <span id="toastMsg">操作成功</span>
+  </div>
+</div>
+
+<script>
+// ==================== 密码验证系统 ====================
+(async function() {
+  // SHA-256 哈希（使用 Web Crypto API）
+  async function sha256(message) {
+    const data = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // 生成今日密码: HX + MMDD（例如 5月27日 = HX0527）
+  function getTodayPassword() {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return 'HX' + month + day;
+  }
+
+  // 更新日期水印
+  const now = new Date();
+  document.getElementById('dateWatermark').textContent =
+    now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日';
+
+  // ==================== 管理员模式 ====================
+  let isAdminMode = false;
+  const ADMIN_USERNAME = 'admin';
+  async function getAdminPasswordHash() {
+    return await sha256('HXadmin2025');
+  }
+
+  window.toggleAdminMode = function() {
+    isAdminMode = !isAdminMode;
+    const userField = document.getElementById('adminUserField');
+    const toggleText = document.getElementById('adminToggleText');
+    const pwdLabel = document.getElementById('pwdLabel');
+    const pwdInput = document.getElementById('passwordInput');
+    const toggle = document.getElementById('adminToggle');
+
+    if (isAdminMode) {
+      userField.classList.remove('hidden');
+      toggleText.textContent = '返回员工登录';
+      pwdLabel.textContent = '管理员密码';
+      pwdInput.placeholder = '请输入管理员密码';
+      toggle.classList.add('text-orange-400');
+      toggle.classList.remove('text-white/25');
+    } else {
+      userField.classList.add('hidden');
+      toggleText.textContent = '管理员入口';
+      pwdLabel.textContent = '访问密码';
+      pwdInput.placeholder = '请输入今日访问密码';
+      toggle.classList.remove('text-orange-400');
+      toggle.classList.add('text-white/25');
+      document.getElementById('adminUsername').value = '';
+    }
+    pwdInput.value = '';
+    document.getElementById('loginError').textContent = '';
+    pwdInput.focus();
+  };
+
+  // ==================== 认证系统（优先初始化，不受粒子系统影响） ====================
+  const MAX_ATTEMPTS = 3;
+  const LOCKOUT_MINUTES = 30;
+  let failedAttempts = parseInt(sessionStorage.getItem('login_fails') || '0');
+  let lockUntil = parseInt(sessionStorage.getItem('login_lock') || '0');
+
+  const ADMIN_ACCOUNTS = [
+    { user: 'admin',      passHash: null },
+    { user: 'huanxicheng', passHash: null }
+  ];
+  (async function() {
+    ADMIN_ACCOUNTS[0].passHash = await sha256('HXadmin2025');
+    ADMIN_ACCOUNTS[1].passHash = await sha256('HXcheng2025');
+  })();
+
+  // 暴露登录处理函数
+  window.handleLogin = async function() {
+    const input = document.getElementById('passwordInput');
+    const errorEl = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('loginBtnText');
+
+    if (lockUntil && Date.now() < lockUntil) {
+      const remainMin = Math.ceil((lockUntil - Date.now()) / 60000);
+      errorEl.textContent = '⛔ 登录已锁定，请在 ' + remainMin + ' 分钟后重试';
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 500);
+      return;
+    }
+
+    const pwd = input.value.trim();
+    if (!pwd) {
+      errorEl.textContent = isAdminMode ? '请输入管理员账号和密码' : '请输入访问密码';
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 500);
+      return;
+    }
+
+    if (isAdminMode) {
+      const username = document.getElementById('adminUsername').value.trim();
+      if (!username) {
+        errorEl.textContent = '请输入管理员账号';
+        document.getElementById('adminUsername').classList.add('error');
+        setTimeout(() => document.getElementById('adminUsername').classList.remove('error'), 500);
+        return;
+      }
+      const admin = ADMIN_ACCOUNTS.find(a => a.user === username);
+      if (!admin || !admin.passHash) {
+        await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
+        failedAttempts++;
+        sessionStorage.setItem('login_fails', failedAttempts);
+        errorEl.textContent = '❌ 管理员账号或密码错误';
+        input.classList.add('error');
+        setTimeout(() => input.classList.remove('error'), 500);
+        input.value = '';
+        input.focus();
+        return;
+      }
+      btn.disabled = true;
+      btnText.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>验证中...';
+      await new Promise(r => setTimeout(r, 800 + Math.random() * 500));
+      const inputHash = await sha256(pwd);
+      if (inputHash === admin.passHash) {
+        sessionStorage.setItem('auth_token', inputHash);
+        sessionStorage.setItem('auth_time', Date.now());
+        sessionStorage.setItem('is_admin', '1');
+        sessionStorage.setItem('admin_user', username);
+        sessionStorage.removeItem('login_fails');
+        sessionStorage.removeItem('login_lock');
+        errorEl.textContent = '';
+        input.classList.remove('error');
+        btnText.innerHTML = '<i class="fa fa-check mr-2"></i>管理员验证通过';
+        btn.classList.add('bg-green-500');
+        await new Promise(r => setTimeout(r, 400));
+        showApp();
+        return;
+      }
+      failedAttempts++;
+      sessionStorage.setItem('login_fails', failedAttempts);
+      errorEl.textContent = '❌ 管理员密码错误';
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 500);
+      input.value = '';
+      input.focus();
+      btn.disabled = false;
+      btnText.innerHTML = '<i class="fa fa-sign-in mr-2"></i>验证访问';
+      return;
+    }
+
+    // 普通用户模式
+    btn.disabled = true;
+    btnText.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>验证中...';
+    await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+
+    const todayPwd = getTodayPassword();
+    const inputHash = await sha256(pwd);
+    const correctHash = await sha256(todayPwd);
+
+    if (inputHash === correctHash) {
+      sessionStorage.setItem('auth_token', correctHash);
+      sessionStorage.setItem('auth_time', Date.now());
+      sessionStorage.removeItem('login_fails');
+      sessionStorage.removeItem('login_lock');
+      errorEl.textContent = '';
+      input.classList.remove('error');
+      btnText.innerHTML = '<i class="fa fa-check mr-2"></i>验证通过';
+      btn.classList.add('bg-green-500');
+      await new Promise(r => setTimeout(r, 400));
+      showApp();
+    } else {
+      failedAttempts++;
+      sessionStorage.setItem('login_fails', failedAttempts);
+      const remaining = MAX_ATTEMPTS - failedAttempts;
+      if (remaining <= 0) {
+        lockUntil = Date.now() + LOCKOUT_MINUTES * 60 * 1000;
+        sessionStorage.setItem('login_lock', lockUntil);
+        errorEl.textContent = '⛔ 密码错误次数过多，已锁定 ' + LOCKOUT_MINUTES + ' 分钟';
+      } else if (remaining <= 2) {
+        errorEl.textContent = '❌ 密码错误！还剩 ' + remaining + ' 次尝试机会，之后将锁定 ' + LOCKOUT_MINUTES + ' 分钟';
+      } else {
+        errorEl.textContent = '❌ 密码错误，请重试（剩余 ' + remaining + ' 次）';
+      }
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 500);
+      input.value = '';
+      input.focus();
+      btn.disabled = false;
+      btnText.innerHTML = '<i class="fa fa-sign-in mr-2"></i>验证访问';
+    }
+  };
+
+  document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+  if (lockUntil && Date.now() >= lockUntil) {
+    sessionStorage.removeItem('login_lock');
+    sessionStorage.setItem('login_fails', '0');
+    failedAttempts = 0;
+    lockUntil = 0;
+  }
+
+  // 检查已有有效会话
+  const authToken = sessionStorage.getItem('auth_token');
+  const authTime = parseInt(sessionStorage.getItem('auth_time') || '0');
+  const SESSION_MAX = 8 * 60 * 60 * 1000;
+  if (authToken && authTime && (Date.now() - authTime < SESSION_MAX)) {
+    const todayPwd = getTodayPassword();
+    const correctHash = await sha256(todayPwd);
+    if (authToken === correctHash) {
+      showApp();
+      return;
+    }
+  }
+  sessionStorage.removeItem('auth_token');
+  sessionStorage.removeItem('auth_time');
+
+  // ==================== Three.js 3D 粒子系统（try-catch 保证不影响登录） ====================
+  try {
+  const canvas = document.getElementById('particleCanvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.5, 100);
+  camera.position.z = 12;
+
+  // 柔和雾效 — 增加景深感
+  scene.fog = new THREE.FogExp2(0x0f172a, 0.00025);
+
+  // 创建发光粒子贴图
+  function createGlowTexture(innerColor, outerColor) {
+    const size = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    gradient.addColorStop(0, innerColor);
+    gradient.addColorStop(0.15, innerColor);
+    gradient.addColorStop(0.4, outerColor);
+    gradient.addColorStop(0.7, 'rgba(0,0,0,0)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const glowTex = createGlowTexture('rgba(255,180,100,1)', 'rgba(249,115,22,0.6)');
+  const glowTexSmall = createGlowTexture('rgba(255,200,140,1)', 'rgba(251,146,60,0.4)');
+
+  // ==================== 主粒子群 —— 螺旋星系结构 ====================
+  const mainCount = 1800;
+  const mainGeo = new THREE.BufferGeometry();
+  const mainPositions = new Float32Array(mainCount * 3);
+  const mainSizes = new Float32Array(mainCount);
+  const mainColors = new Float32Array(mainCount * 3);
+
+  const colorCore = new THREE.Color('#ffb866');
+  const colorMid = new THREE.Color('#f97316');
+  const colorOuter = new THREE.Color('#c2410c');
+
+  for (let i = 0; i < mainCount; i++) {
+    // 螺旋分布: 多条旋臂 + 随机散布
+    const arm = i % 5; // 5条旋臂
+    const armAngle = (arm / 5) * Math.PI * 2;
+    const radius = Math.pow(Math.random(), 0.6) * 14 + 0.5;
+    const spiralAngle = radius * 0.8 + armAngle;
+    const scatter = (Math.random() - 0.5) * (1.5 + radius * 0.3);
+
+    const x = Math.cos(spiralAngle + scatter) * radius;
+    const y = (Math.random() - 0.5) * (4.5 - radius * 0.2);
+    const z = Math.sin(spiralAngle + scatter) * radius + (Math.random() - 0.5) * 3;
+
+    mainPositions[i * 3] = x;
+    mainPositions[i * 3 + 1] = y;
+    mainPositions[i * 3 + 2] = z;
+
+    // 粒子大小 — 近大远小增加深度感
+    const distFromCenter = Math.sqrt(x*x + y*y + z*z);
+    mainSizes[i] = (0.03 + Math.random() * 0.1) * (1 - distFromCenter / 16);
+
+    // 颜色 — 内部暖金、外部深橙
+    const t = Math.min(distFromCenter / 14, 1);
+    const col = colorCore.clone().lerp(colorMid, t * 1.2).lerp(colorOuter, Math.max(0, t * 1.5 - 0.3));
+    mainColors[i * 3] = col.r;
+    mainColors[i * 3 + 1] = col.g;
+    mainColors[i * 3 + 2] = col.b;
+  }
+
+  // ==================== 保存原始螺旋位置 ====================
+  const spiralPositions = new Float32Array(mainPositions);
+
+  // ==================== 生成「欢喜」文字目标位置 ====================
+  const textCanvas = document.createElement('canvas');
+  textCanvas.width = 800;
+  textCanvas.height = 320;
+  const tctx = textCanvas.getContext('2d');
+  tctx.fillStyle = '#ffffff';
+  tctx.font = 'bold 220px "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
+  tctx.textAlign = 'center';
+  tctx.textBaseline = 'middle';
+  tctx.fillText('欢喜', 400, 160);
+  const imageData = tctx.getImageData(0, 0, 800, 320);
+  const textPixels = [];
+  for (let y = 0; y < 320; y += 2) {
+    for (let x = 0; x < 800; x += 2) {
+      const alpha = imageData.data[(y * 800 + x) * 4 + 3];
+      if (alpha > 100) {
+        textPixels.push({
+          tx: (x / 800 - 0.5) * 16,
+          ty: -(y / 320 - 0.5) * 6.4,
+          tz: (Math.random() - 0.5) * 1.5
+        });
+      }
+    }
+  }
+  // 随机采样作为目标位置
+  const targetPositions = new Float32Array(mainCount * 3);
+  for (let i = 0; i < mainCount; i++) {
+    const p = textPixels[Math.floor(Math.random() * textPixels.length)];
+    targetPositions[i * 3] = p.tx + (Math.random() - 0.5) * 0.3;
+    targetPositions[i * 3 + 1] = p.ty + (Math.random() - 0.5) * 0.3;
+    targetPositions[i * 3 + 2] = p.tz + (Math.random() - 0.5) * 0.3;
+  }
+
+  mainGeo.setAttribute('position', new THREE.BufferAttribute(mainPositions, 3));
+  mainGeo.setAttribute('size', new THREE.BufferAttribute(mainSizes, 1));
+  mainGeo.setAttribute('color', new THREE.BufferAttribute(mainColors, 3));
+
+  const mainMat = new THREE.PointsMaterial({
+    map: glowTex,
+    size: 0.35,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    depthTest: true,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85,
+  });
+
+  const mainPoints = new THREE.Points(mainGeo, mainMat);
+  scene.add(mainPoints);
+
+  // ==================== 轨道环 —— 增强结构感 ====================
+  const ringCount = 600;
+  const rings = [];
+  for (let r = 0; r < 3; r++) {
+    const ringGeo = new THREE.BufferGeometry();
+    const ringPositions = new Float32Array(ringCount * 3);
+    const ringRadius = 5 + r * 3.5;
+    const tiltX = (r - 1) * 0.45;
+    const tiltZ = r * 0.7;
+
+    for (let i = 0; i < ringCount; i++) {
+      const angle = (i / ringCount) * Math.PI * 2;
+      const jitter = (Math.random() - 0.5) * 0.6;
+      const rJitter = ringRadius + (Math.random() - 0.5) * 1.6;
+
+      const px = Math.cos(angle + jitter * 0.3) * rJitter;
+      const py = (Math.random() - 0.5) * 0.5;
+      const pz = Math.sin(angle + jitter * 0.3) * rJitter;
+
+      // 应用倾斜
+      const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
+      const cosZ = Math.cos(tiltZ), sinZ = Math.sin(tiltZ);
+      const ry = py * cosX - pz * sinX;
+      const rz = py * sinX + pz * cosX;
+      const rx = px * cosZ - rz * sinZ;
+
+      ringPositions[i * 3] = rx;
+      ringPositions[i * 3 + 1] = ry;
+      ringPositions[i * 3 + 2] = px * sinZ + rz * cosZ;
+    }
+
+    ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPositions, 3));
+
+    const ringMat = new THREE.PointsMaterial({
+      map: glowTexSmall,
+      size: 0.12 + r * 0.04,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthTest: true,
+      color: new THREE.Color().setHSL(0.1, 1, 0.35 + r * 0.15),
+      transparent: true,
+      opacity: 0.5 + r * 0.15,
+    });
+
+    const ringMesh = new THREE.Points(ringGeo, ringMat);
+    ringMesh.userData = { rotSpeed: 0.0003 + r * 0.00015, tiltX, tiltZ, baseRadius: ringRadius, baseOpacity: 0.5 + r * 0.15 };
+    scene.add(ringMesh);
+    rings.push(ringMesh);
+  }
+
+  // ==================== 核心光球 ====================
+  const coreGeo = new THREE.BufferGeometry();
+  const coreCount = 300;
+  const corePositions = new Float32Array(coreCount * 3);
+  for (let i = 0; i < coreCount; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 0.4 + Math.random() * 1.6;
+    corePositions[i * 3] = Math.sin(phi) * Math.cos(theta) * r;
+    corePositions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * r;
+    corePositions[i * 3 + 2] = Math.cos(phi) * r;
+  }
+  coreGeo.setAttribute('position', new THREE.BufferAttribute(corePositions, 3));
+  const coreMat = new THREE.PointsMaterial({
+    map: glowTex,
+    size: 0.25,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    depthTest: true,
+    color: new THREE.Color('#ffe0b0'),
+    transparent: true,
+    opacity: 1,
+  });
+  const corePoints = new THREE.Points(coreGeo, coreMat);
+  scene.add(corePoints);
+
+  // ==================== 鼠标交互 ====================
+  const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+  document.addEventListener('mousemove', e => {
+    mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.ty = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+  document.addEventListener('touchmove', e => {
+    mouse.tx = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    mouse.ty = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+  }, { passive: true });
+
+  // ==================== 动画循环 ====================
+  const CYCLE_DURATION = 20; // 整个循环周期（秒）
+  const CONVERGE_START = 7;  // 开始汇聚时间
+  const CONVERGE_END = 9.5;  // 汇聚完成时间
+  const DISPERSE_START = 14; // 开始散开时间
+  const DISPERSE_END = 16.5; // 散开完成时间
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  let animStart = performance.now() / 1000;
+  const posArray = mainGeo.attributes.position.array;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const elapsed = (performance.now() / 1000 - animStart) % CYCLE_DURATION;
+
+    // 计算汇聚进度 (0 = 螺旋, 1 = 文字)
+    let convergeProgress = 0;
+    if (elapsed >= CONVERGE_START && elapsed < CONVERGE_END) {
+      const t = (elapsed - CONVERGE_START) / (CONVERGE_END - CONVERGE_START);
+      convergeProgress = easeInOutCubic(t);
+    } else if (elapsed >= CONVERGE_END && elapsed < DISPERSE_START) {
+      convergeProgress = 1;
+    } else if (elapsed >= DISPERSE_START && elapsed < DISPERSE_END) {
+      const t = (elapsed - DISPERSE_START) / (DISPERSE_END - DISPERSE_START);
+      convergeProgress = 1 - easeInOutCubic(t);
+    }
+
+    // 插值粒子位置
+    for (let i = 0; i < mainCount * 3; i++) {
+      posArray[i] = spiralPositions[i] + (targetPositions[i] - spiralPositions[i]) * convergeProgress;
+    }
+    mainGeo.attributes.position.needsUpdate = true;
+
+    // 汇聚时不旋转，螺旋时旋转
+    const rotFactor = 1 - convergeProgress;
+    mainPoints.rotation.y += 0.0004 * rotFactor;
+    mainPoints.rotation.x += 0.0001 * rotFactor;
+    mainPoints.rotation.z += 0.00008 * rotFactor;
+
+    // 鼠标平滑跟随
+    mouse.x += (mouse.tx - mouse.x) * 0.03;
+    mouse.y += (mouse.ty - mouse.y) * 0.03;
+
+    // 相机轻微跟随鼠标 — 视差效果
+    camera.position.x += (mouse.x * 1.8 - camera.position.x) * 0.02;
+    camera.position.y += (mouse.y * 1.2 - camera.position.y) * 0.02;
+    camera.lookAt(0, 0, 0);
+
+    // 核心光球 — 汇聚时变亮变大
+    const pulse = 1 + convergeProgress * 1.2;
+    coreMat.size = 0.25 * pulse;
+    coreMat.opacity = 1 - convergeProgress * 0.5;
+    corePoints.rotation.y -= 0.0008;
+    corePoints.rotation.x += 0.0003;
+
+    // 轨道环 — 汇聚时淡出
+    rings.forEach(ring => {
+      ring.rotation.y += ring.userData.rotSpeed * rotFactor;
+      ring.rotation.x += ring.userData.rotSpeed * 0.3 * rotFactor;
+      ring.material.opacity = ring.userData.baseOpacity * rotFactor;
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // ==================== 窗口大小适配 ====================
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  } catch (e) {
+    // Three.js 粒子系统加载失败，使用 CSS 渐变作为降级背景
+    console.warn('3D粒子系统暂不可用，使用静态背景');
+    document.querySelector('.login-bg').style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 40%, #1a1a2e 70%, #16213e 100%)';
+  }
+})();
+
+// 显示主应用
+function showApp() {
+  const loginScreen = document.getElementById('loginScreen');
+  const appContent = document.getElementById('appContent');
+  loginScreen.style.opacity = '0';
+  loginScreen.style.transition = 'opacity 0.4s ease';
+  appContent.classList.remove('hidden');
+  appContent.classList.add('flex', 'h-screen', 'overflow-hidden');
+
+  // 管理员身份标记
+  const isAdmin = sessionStorage.getItem('is_admin') === '1';
+  const adminUser = sessionStorage.getItem('admin_user') || '';
+  if (isAdmin) {
+    const avatar = document.querySelector('.w-9.h-9.rounded-full');
+    if (avatar) {
+      avatar.title = '管理员: ' + adminUser;
+      avatar.innerHTML = '<i class="fa fa-shield"></i>';
+      avatar.classList.add('bg-gradient-to-br', 'from-red-500', 'to-red-700');
+    }
+  }
+
+  setTimeout(() => {
+    loginScreen.remove();
+    renderFiles();
+    document.querySelector('.category-item.active')?.classList.add('active');
+  }, 400);
+}
+
+// ==================== 模拟数据 ====================
+const files = [
+  // Word 文档
+  { id:1,  name:'欢喜城品牌手册_v3.2',        ext:'docx', cat:'doc', size:'4.2 MB', date:'2025-12-20', author:'品牌部',     downloads:238 },
+  { id:2,  name:'2025年度工作总结报告',         ext:'docx', cat:'doc', size:'2.8 MB', date:'2025-12-18', author:'行政部',     downloads:156 },
+  { id:3,  name:'员工入职指南_2025新版',        ext:'docx', cat:'doc', size:'1.5 MB', date:'2025-11-30', author:'HR',         downloads:421 },
+  { id:4,  name:'合作伙伴协议模板',             ext:'docx', cat:'doc', size:'0.8 MB', date:'2025-11-15', author:'法务部',     downloads:189 },
+  { id:5,  name:'项目管理规范文档',             ext:'docx', cat:'doc', size:'3.1 MB', date:'2025-10-28', author:'PMO',        downloads:112 },
+  { id:6,  name:'客户服务标准流程',             ext:'docx', cat:'doc', size:'1.9 MB', date:'2025-10-12', author:'客服部',     downloads:297 },
+  { id:7,  name:'数据安全管理制度',             ext:'docx', cat:'doc', size:'2.3 MB', date:'2025-09-25', author:'IT部',       downloads:345 },
+  { id:8,  name:'市场推广方案模板',             ext:'docx', cat:'doc', size:'1.6 MB', date:'2025-09-10', author:'市场部',     downloads:178 },
+  { id:9,  name:'季度绩效考核标准',             ext:'docx', cat:'doc', size:'0.9 MB', date:'2025-08-22', author:'HR',         downloads:403 },
+  { id:10, name:'供应商评估报告模板',           ext:'docx', cat:'doc', size:'2.1 MB', date:'2025-08-05', author:'采购部',     downloads:134 },
+
+  // Excel 表格
+  { id:11, name:'员工通讯录_2025',              ext:'xlsx', cat:'xls', size:'1.2 MB', date:'2025-12-22', author:'HR',         downloads:512 },
+  { id:12, name:'项目进度跟踪表',               ext:'xlsx', cat:'xls', size:'0.6 MB', date:'2025-12-10', author:'PMO',        downloads:267 },
+  { id:13, name:'年度财务预算表',               ext:'xlsx', cat:'xls', size:'2.4 MB', date:'2025-11-20', author:'财务部',     downloads:198 },
+  { id:14, name:'客户信息汇总表',               ext:'xlsx', cat:'xls', size:'3.8 MB', date:'2025-11-08', author:'销售部',     downloads:332 },
+  { id:15, name:'库存管理明细表',               ext:'xlsx', cat:'xls', size:'1.7 MB', date:'2025-10-18', author:'仓储部',     downloads:145 },
+  { id:16, name:'培训签到统计表',               ext:'xlsx', cat:'xls', size:'0.4 MB', date:'2025-10-05', author:'HR',         downloads:289 },
+  { id:17, name:'销售业绩汇总_2025Q4',          ext:'xlsx', cat:'xls', size:'2.9 MB', date:'2025-09-15', author:'销售部',     downloads:376 },
+  { id:18, name:'设备资产清单',                 ext:'xlsx', cat:'xls', size:'1.1 MB', date:'2025-09-01', author:'IT部',       downloads:201 },
+
+  // PPT 演示
+  { id:19, name:'季度工作汇报模板_标准版',      ext:'pptx', cat:'ppt', size:'8.6 MB', date:'2025-12-25', author:'行政部',     downloads:673 },
+  { id:20, name:'新员工入职培训课件',           ext:'pptx', cat:'ppt', size:'15.2 MB',date:'2025-12-15', author:'HR',         downloads:891 },
+  { id:21, name:'产品发布会演示文稿',           ext:'pptx', cat:'ppt', size:'22.4 MB',date:'2025-11-25', author:'产品部',     downloads:445 },
+  { id:22, name:'年度战略规划方案',             ext:'pptx', cat:'ppt', size:'18.7 MB',date:'2025-11-10', author:'管理层',     downloads:534 },
+  { id:23, name:'公司介绍_Corporate_Profile',   ext:'pptx', cat:'ppt', size:'12.3 MB',date:'2025-10-22', author:'品牌部',     downloads:723 },
+  { id:24, name:'技术架构分享会',               ext:'pptx', cat:'ppt', size:'9.8 MB', date:'2025-10-08', author:'技术部',     downloads:312 },
+  { id:25, name:'客户案例分享集',               ext:'pptx', cat:'ppt', size:'16.5 MB',date:'2025-09-20', author:'销售部',     downloads:287 },
+  { id:26, name:'团建活动方案策划',             ext:'pptx', cat:'ppt', size:'7.4 MB', date:'2025-09-05', author:'HR',         downloads:456 },
+
+  // PDF 资料
+  { id:27, name:'公司介绍手册_2025版',          ext:'pdf',  cat:'pdf', size:'5.6 MB', date:'2025-12-28', author:'品牌部',     downloads:1024 },
+  { id:28, name:'产品使用说明书_v2.3',          ext:'pdf',  cat:'pdf', size:'3.2 MB', date:'2025-12-12', author:'产品部',     downloads:567 },
+  { id:29, name:'行业分析报告_2025年度',        ext:'pdf',  cat:'pdf', size:'8.9 MB', date:'2025-11-22', author:'市场部',     downloads:389 },
+  { id:30, name:'企业培训认证证书',             ext:'pdf',  cat:'pdf', size:'1.1 MB', date:'2025-11-05', author:'HR',         downloads:234 },
+  { id:31, name:'质量管理体系文件',             ext:'pdf',  cat:'pdf', size:'4.7 MB', date:'2025-10-15', author:'质量部',     downloads:178 },
+  { id:32, name:'安全生产手册',                 ext:'pdf',  cat:'pdf', size:'6.3 MB', date:'2025-09-28', author:'行政部',     downloads:345 },
+  { id:33, name:'合作伙伴白皮书',               ext:'pdf',  cat:'pdf', size:'2.8 MB', date:'2025-09-12', author:'商务部',     downloads:267 },
+
+  // 图片素材
+  { id:34, name:'公司LOGO_高清版',              ext:'png',  cat:'img', size:'2.4 MB', date:'2025-12-26', author:'品牌部',     downloads:892 },
+  { id:35, name:'团队合影_2025年度',            ext:'jpg',  cat:'img', size:'5.8 MB', date:'2025-12-15', author:'HR',         downloads:567 },
+  { id:36, name:'产品宣传海报_A系列',           ext:'png',  cat:'img', size:'3.6 MB', date:'2025-11-28', author:'市场部',     downloads:423 },
+  { id:37, name:'办公环境展示图集',             ext:'jpg',  cat:'img', size:'7.2 MB', date:'2025-11-18', author:'行政部',     downloads:312 },
+  { id:38, name:'品牌VI视觉规范',               ext:'png',  cat:'img', size:'4.1 MB', date:'2025-10-30', author:'品牌部',     downloads:678 },
+  { id:39, name:'活动照片集_年会2025',          ext:'jpg',  cat:'img', size:'9.5 MB', date:'2025-10-20', author:'HR',         downloads:534 },
+  { id:40, name:'社交媒体封面模板',             ext:'png',  cat:'img', size:'1.8 MB', date:'2025-10-08', author:'市场部',     downloads:389 },
+  { id:41, name:'产品实物拍摄_高清',            ext:'jpg',  cat:'img', size:'6.7 MB', date:'2025-09-25', author:'产品部',     downloads:445 },
+  { id:42, name:'名片设计模板',                 ext:'png',  cat:'img', size:'0.9 MB', date:'2025-09-15', author:'品牌部',     downloads:267 },
+  { id:43, name:'官方网站Banner素材',           ext:'png',  cat:'img', size:'2.2 MB', date:'2025-09-01', author:'设计部',     downloads:356 },
+
+  // 压缩包
+  { id:44, name:'品牌物料合集_完整版',          ext:'zip',  cat:'zip', size:'45.6 MB',date:'2025-12-20', author:'品牌部',     downloads:234 },
+  { id:45, name:'项目资料归档_Q4',              ext:'zip',  cat:'zip', size:'32.1 MB',date:'2025-12-05', author:'PMO',        downloads:156 },
+  { id:46, name:'培训资料包_新人必备',          ext:'zip',  cat:'zip', size:'28.4 MB',date:'2025-11-15', author:'HR',         downloads:512 },
+  { id:47, name:'产品原型设计稿',               ext:'zip',  cat:'zip', size:'18.9 MB',date:'2025-10-25', author:'产品部',     downloads:189 },
+  { id:48, name:'年货节活动素材包',             ext:'zip',  cat:'zip', size:'52.3 MB',date:'2025-10-10', author:'市场部',     downloads:378 },
+];
+
+let currentCategory = 'all';
+let currentView = 'grid';
+let currentSort = 'newest';
+
+// ==================== 图标映射 ====================
+function getFileIcon(ext, cat) {
+  const map = {
+    docx: { icon:'fa-file-word-o', cls:'file-icon-word', bg:'bg-blue-50', label:'Word' },
+    xlsx: { icon:'fa-file-excel-o', cls:'file-icon-excel', bg:'bg-green-50', label:'Excel' },
+    pptx: { icon:'fa-file-powerpoint-o', cls:'file-icon-ppt', bg:'bg-red-50', label:'PPT' },
+    pdf:  { icon:'fa-file-pdf-o', cls:'file-icon-pdf', bg:'bg-red-50', label:'PDF' },
+    png:  { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
+    jpg:  { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
+    jpeg: { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
+    gif:  { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
+    webp: { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
+    zip:  { icon:'fa-file-archive-o', cls:'file-icon-zip', bg:'bg-indigo-50', label:'压缩包' },
+    rar:  { icon:'fa-file-archive-o', cls:'file-icon-zip', bg:'bg-indigo-50', label:'压缩包' },
+  };
+  return map[ext] || { icon:'fa-file-o', cls:'text-gray-400', bg:'bg-gray-50', label:'文件' };
+}
+
+// ==================== 渲染文件 ====================
+function renderFiles() {
+  let filtered = currentCategory === 'all' ? [...files] : files.filter(f => f.cat === currentCategory);
+
+  // 搜索过滤
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (q) filtered = filtered.filter(f => f.name.toLowerCase().includes(q));
+
+  // 排序
+  if (currentSort === 'newest') filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+  else if (currentSort === 'oldest') filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
+  else if (currentSort === 'name') filtered.sort((a,b) => a.name.localeCompare(b.name, 'zh'));
+  else if (currentSort === 'size') filtered.sort((a,b) => parseFloat(b.size) - parseFloat(a.size));
+
+  const grid = document.getElementById('fileGrid');
+  const empty = document.getElementById('emptyState');
+  const countEl = document.getElementById('fileCount');
+
+  countEl.textContent = filtered.length + ' 个文件';
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  if (currentView === 'list') {
+    grid.className = 'flex flex-col gap-2';
+    grid.innerHTML = filtered.map((f, i) => {
+      const fi = getFileIcon(f.ext, f.cat);
+      return `
+      <div class="file-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 animate-in" style="animation-delay:${i*0.03}s">
+        <div class="w-11 h-11 rounded-xl ${fi.bg} flex items-center justify-center flex-shrink-0">
+          <i class="fa ${fi.icon} ${fi.cls} text-xl"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-800 truncate">${f.name}.${f.ext}</p>
+          <p class="text-[11px] text-gray-400">${f.size} · ${f.author} · ${f.date}</p>
+        </div>
+        <span class="text-[10px] font-medium text-white bg-gray-700 px-2 py-0.5 rounded-full">${fi.label}</span>
+        <span class="text-[11px] text-gray-400"><i class="fa fa-download mr-1"></i>${f.downloads}</span>
+        <div class="flex gap-2">
+          <button onclick="previewFile(${f.id})" class="text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1" title="预览"><i class="fa fa-eye"></i></button>
+          <button onclick="downloadFile(${f.id})" class="text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1" title="下载"><i class="fa fa-download"></i></button>
+          <button class="text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1" title="更多"><i class="fa fa-ellipsis-v"></i></button>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+    grid.innerHTML = filtered.map((f, i) => {
+      const fi = getFileIcon(f.ext, f.cat);
+      return `
+      <div class="file-card bg-white rounded-xl p-5 shadow-sm border border-gray-100 group cursor-pointer animate-in" style="animation-delay:${i*0.04}s" onclick="previewFile(${f.id})">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-12 h-12 rounded-2xl ${fi.bg} flex items-center justify-center">
+            <i class="fa ${fi.icon} ${fi.cls} text-2xl"></i>
+          </div>
+          <span class="text-[10px] font-medium text-white bg-gray-700 px-2 py-0.5 rounded-full">${fi.label}</span>
+        </div>
+        <h4 class="text-sm font-semibold text-gray-800 mb-1 truncate" title="${f.name}.${f.ext}">${f.name}</h4>
+        <p class="text-[11px] text-gray-400 mb-3">.${f.ext}</p>
+        <div class="flex items-center justify-between text-[11px] text-gray-400 border-t border-gray-50 pt-3">
+          <span>${f.size}</span>
+          <span>${f.date}</span>
+        </div>
+        <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-50">
+          <span class="text-[11px] text-gray-400"><i class="fa fa-user-circle-o mr-1"></i>${f.author}</span>
+          <span class="text-[11px] text-gray-400"><i class="fa fa-download mr-1"></i>${f.downloads}</span>
+        </div>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          <button onclick="event.stopPropagation();downloadFile(${f.id})" class="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs hover:bg-orange-600 shadow-md" title="下载">
+            <i class="fa fa-download"></i>
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ==================== 分类切换 ====================
+document.querySelectorAll('.category-item[data-category]').forEach(item => {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+    this.classList.add('active');
+    currentCategory = this.dataset.category;
+    document.getElementById('sectionTitle').textContent = this.textContent.trim().split(/\s+/)[0];
+    renderFiles();
+  });
+});
+
+// 全部文件按钮
+document.querySelector('.category-item.active')?.addEventListener('click', function(e) {
+  e.preventDefault();
+  document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+  this.classList.add('active');
+  currentCategory = 'all';
+  document.getElementById('sectionTitle').textContent = '全部文件';
+  renderFiles();
+});
+
+// ==================== 搜索 ====================
+document.getElementById('searchInput').addEventListener('input', renderFiles);
+
+// ==================== 排序 ====================
+document.getElementById('sortSelect').addEventListener('change', function() {
+  currentSort = this.value;
+  renderFiles();
+});
+
+// ==================== 视图切换 ====================
+function setView(view) {
+  currentView = view;
+  document.querySelectorAll('.view-btn').forEach(b => {
+    b.classList.remove('active', 'bg-white', 'shadow-sm', 'text-gray-700');
+    b.classList.add('text-gray-400');
+  });
+  const active = document.querySelector(`.view-btn[data-view="${view}"]`);
+  active.classList.add('active', 'bg-white', 'shadow-sm', 'text-gray-700');
+  active.classList.remove('text-gray-400');
+  renderFiles();
+}
+
+// ==================== 上传弹窗 ====================
+function openUploadModal() {
+  document.getElementById('uploadModal').classList.remove('hidden');
+}
+function closeUploadModal() {
+  document.getElementById('uploadModal').classList.add('hidden');
+}
+
+function getFileCategory(mimeType, ext) {
+  if (mimeType.startsWith('image/')) return 'img';
+  const map = {
+    docx: 'doc', doc: 'doc',
+    xlsx: 'xls', xls: 'xls', csv: 'xls',
+    pptx: 'ppt', ppt: 'ppt',
+    pdf: 'pdf',
+    zip: 'zip', rar: 'zip', '7z': 'zip', gz: 'zip',
+  };
+  return map[ext] || 'doc';
+}
+
+function getFileExtension(filename) {
+  const parts = filename.split('.');
+  return parts.length > 1 ? parts.pop().toLowerCase() : 'unknown';
+}
+
+function formatFileSize(bytes) {
+  if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(1) + ' GB';
+  if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+  if (bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return bytes + ' B';
+}
+
+function handleUploadedFiles(fileList) {
+  const today = new Date().toISOString().split('T')[0];
+  let imgCount = 0, otherCount = 0;
+
+  Array.from(fileList).forEach(file => {
+    const ext = getFileExtension(file.name);
+    const cat = getFileCategory(file.type, ext);
+    const isImg = file.type.startsWith('image/');
+    if (isImg) imgCount++; else otherCount++;
+
+    const newFile = {
+      id: Date.now() + Math.random(),
+      name: file.name.replace(/\.[^.]+$/, ''),
+      ext: ext,
+      cat: cat,
+      size: formatFileSize(file.size),
+      date: today,
+      author: sessionStorage.getItem('is_admin') === '1' ? sessionStorage.getItem('admin_user') || '管理员' : '员工',
+      downloads: 0,
+      _blob: file, // 存储实际文件对象用于下载
+    };
+    files.unshift(newFile);
+  });
+
+  // 更新侧边栏计数
+  updateCategoryCounts();
+  renderFiles();
+
+  if (imgCount) showToast(`${imgCount} 个图片已上传 — 保持原始画质，未做任何压缩`);
+  if (otherCount) showToast(`${otherCount} 个文件上传成功`);
+  closeUploadModal();
+}
+
+function updateCategoryCounts() {
+  const counts = {};
+  files.forEach(f => { counts[f.cat] = (counts[f.cat] || 0) + 1; });
+  document.querySelectorAll('.category-item[data-category]').forEach(item => {
+    const cat = item.dataset.category;
+    const badge = item.querySelector('span');
+    if (badge && counts[cat] !== undefined) {
+      badge.textContent = counts[cat];
+    }
+  });
+  // 更新总数
+  const totalBadge = document.querySelector('.category-item.active span');
+  if (totalBadge) totalBadge.textContent = files.length;
+}
+
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) {
+    handleUploadedFiles(e.dataTransfer.files);
+  }
+});
+dropZone.querySelector('button').addEventListener('click', () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.onchange = () => {
+    if (input.files.length) handleUploadedFiles(input.files);
+  };
+  input.click();
+});
+
+// ==================== 文件操作 ====================
+function previewFile(id) {
+  const f = files.find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('previewTitle').textContent = f.name + '.' + f.ext;
+  const fi = getFileIcon(f.ext, f.cat);
+  const content = document.getElementById('previewContent');
+  const imgExts = ['png','jpg','jpeg','gif','webp','svg','bmp'];
+  const isImg = imgExts.includes(f.ext);
+
+  // 如果是真实上传的图片，可以预览
+  const hasBlob = f._blob instanceof Blob || f._blob instanceof File;
+  const imgSrc = (hasBlob && f._blob.type.startsWith('image/'))
+    ? URL.createObjectURL(f._blob)
+    : null;
+
+  content.innerHTML = `
+    <div class="text-center">
+      ${isImg ? `
+      <div class="bg-gray-50 rounded-xl p-6 mb-4 inline-block">
+        ${imgSrc
+          ? `<img src="${imgSrc}" alt="${f.name}" class="max-w-full max-h-80 rounded-lg object-contain" style="image-rendering:auto" onload="this.dataset.loaded='1'">`
+          : `<div class="w-64 h-48 mx-auto rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div class="text-center">
+                <i class="fa ${fi.icon} ${fi.cls} text-6xl mb-2"></i>
+                <p class="text-sm text-gray-400">${f.name}.${f.ext}</p>
+              </div>
+            </div>`
+        }
+      </div>
+      <p class="text-xs text-orange-500 mb-3"><i class="fa fa-check-circle mr-1"></i>图片保持原始清晰度，未做压缩处理</p>
+      ` : `
+      <div class="bg-gray-50 rounded-xl p-8 mb-4 inline-block">
+        <i class="fa ${fi.icon} ${fi.cls} text-8xl"></i>
+      </div>
+      `}
+      <div class="bg-gray-100 rounded-xl p-4 mb-4 text-left max-w-sm mx-auto">
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">文件名</span><span class="text-gray-800 font-medium">${f.name}.${f.ext}</span></div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">类型</span><span class="text-gray-800">${fi.label} 文件</span></div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">大小</span><span class="text-gray-800">${f.size}</span></div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">上传者</span><span class="text-gray-800">${f.author}</span></div>
+        <div class="flex justify-between text-xs"><span class="text-gray-500">日期</span><span class="text-gray-800">${f.date}</span></div>
+        ${f.downloads > 0 ? `<div class="flex justify-between text-xs mt-1"><span class="text-gray-500">下载次数</span><span class="text-gray-800">${f.downloads}</span></div>` : ''}
+      </div>
+      <div class="flex justify-center gap-3">
+        <button onclick="downloadFile(${f.id});closePreviewModal()" class="btn-primary text-white text-sm px-6 py-2.5 rounded-xl font-medium">
+          <i class="fa fa-download mr-1.5"></i>下载${isImg ? '原图' : '文件'} (${f.size})
+        </button>
+        <button onclick="closePreviewModal()" class="text-sm px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50">关闭</button>
+      </div>
+    </div>`;
+        </div>
+      </div>`;
+  }
+  document.getElementById('previewModal').classList.remove('hidden');
+}
+
+function closePreviewModal() {
+  document.getElementById('previewModal').classList.add('hidden');
+}
+
+function downloadFile(id) {
+  const f = files.find(x => x.id === id);
+  if (!f) return;
+
+  // 增加下载计数
+  f.downloads = (f.downloads || 0) + 1;
+
+  const imgExts = ['png','jpg','jpeg','gif','webp','svg','bmp'];
+  const ext = f.ext.toLowerCase();
+
+  // 如果是真实上传的文件，直接下载原始文件（不压缩图片）
+  if (f._blob) {
+    triggerDownload(f._blob, f.name + '.' + f.ext);
+    const isImg = f._blob.type.startsWith('image/');
+    showToast(`正在下载 "${f.name}.${f.ext}"` + (isImg ? ' — 保持原始画质，未压缩' : ''));
+    return;
+  }
+
+  // 图片类型：使用真实 logo.png 作为示例下载
+  if (imgExts.includes(ext)) {
+    fetch('logo.png')
+      .then(r => r.blob())
+      .then(blob => {
+        triggerDownload(blob, f.name + '.' + f.ext);
+        showToast(`正在下载 "${f.name}.${f.ext}" — 保持原始画质，未压缩`);
+      })
+      .catch(() => {
+        // 如果 logo.png 不可用，生成占位图片
+        const canvas = document.createElement('canvas');
+        canvas.width = 800; canvas.height = 600;
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0,0,800,600);
+        gradient.addColorStop(0, '#f97316');
+        gradient.addColorStop(1, '#c2410c');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0,0,800,600);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 48px "PingFang SC","Microsoft YaHei",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(f.name, 400, 300);
+        canvas.toBlob(blob => {
+          triggerDownload(blob, f.name + '.png');
+          showToast(`正在下载 "${f.name}.png" — 保持原始画质，未压缩`);
+        }, 'image/png', 1.0);
+      });
+    return;
+  }
+
+  // 文档类型：生成真实可下载的占位文件
+  let content = '';
+  let mimeType = 'application/octet-stream';
+
+  switch (ext) {
+    case 'docx':
+      content = `[欢喜城·育见欢喜]\n\n文件名: ${f.name}.${f.ext}\n上传者: ${f.author}\n日期: ${f.date}\n大小: ${f.size}\n\n这是一个 Word 文档占位文件。实际部署后将包含真实文档内容。\n\n公司内部资料，请勿外传。`;
+      mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      break;
+    case 'xlsx':
+      content = `名称,部门,日期,大小\n${f.name},${f.author},${f.date},${f.size}\n示例数据1,部门A,2025-01-01,100\n示例数据2,部门B,2025-02-01,200\n示例数据3,部门C,2025-03-01,300`;
+      mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      break;
+    case 'pptx':
+      content = `欢喜城·育见欢喜\n\n=== ${f.name} ===\n\n作者: ${f.author}\n日期: ${f.date}\n\n幻灯片1: 封面\n幻灯片2: 目录\n幻灯片3: 内容详情\n幻灯片4: 总结\n\n实际部署后将包含真实PPT内容。`;
+      mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+      break;
+    case 'pdf':
+      content = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 44 >>\nstream\nBT /F1 24 Tf 100 700 Td (${f.name}) Tj ET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000279 00000 n \n0000000375 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n435\n%%EOF`;
+      mimeType = 'application/pdf';
+      break;
+    case 'zip':
+      content = new Uint8Array([80,75,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
+      mimeType = 'application/zip';
+      break;
+    default:
+      content = `文件: ${f.name}.${f.ext}\n上传者: ${f.author}\n日期: ${f.date}\n大小: ${f.size}`;
+      mimeType = 'text/plain';
+  }
+
+  const blob = new Blob([content], { type: mimeType });
+  triggerDownload(blob, f.name + '.' + f.ext);
+  const isImg = imgExts.includes(ext);
+  showToast(`正在下载 "${f.name}.${f.ext}"` + (isImg ? ' — 保持原始画质，未压缩' : ''));
+}
+
+// 触发浏览器下载
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ==================== Toast ====================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.remove('hidden');
+  toast.style.opacity = '1';
+  toast.style.transform = 'translate(-50%, 0)';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translate(-50%, 20px)';
+    setTimeout(() => toast.classList.add('hidden'), 300);
+  }, 2500);
+}
+
+// ==================== 键盘快捷键 ====================
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeUploadModal();
+    closePreviewModal();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// ==================== 点击弹窗背景关闭 ====================
+document.getElementById('uploadModal').addEventListener('click', function(e) {
+  if (e.target === this) closeUploadModal();
+});
+document.getElementById('previewModal').addEventListener('click', function(e) {
+  if (e.target === this) closePreviewModal();
+});
+
+// 初始渲染由 showApp() 触发（密码验证通过后）
+</script>
+
+</div><!-- /#appContent -->
+
+</body>
+</html>
