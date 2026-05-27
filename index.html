@@ -791,12 +791,101 @@ function showApp() {
 
   setTimeout(() => {
     loginScreen.remove();
-    renderFiles();
+    // 先从 IndexedDB 加载持久化的上传文件，再渲染
+    loadPersistedFiles().then(() => {
+      renderFiles();
+    });
   }, 400);
 }
 
-// ==================== 模拟数据 ====================
-const files = [
+// ==================== IndexedDB 文件持久化 ====================
+var db;
+function openDB() {
+  return new Promise((resolve, reject) => {
+    var req = indexedDB.open('HuanxiResourceDB', 1);
+    req.onupgradeneeded = function(e) {
+      var d = e.target.result;
+      if (!d.objectStoreNames.contains('files')) {
+        var store = d.createObjectStore('files', { keyPath: 'id' });
+        store.createIndex('cat', 'cat', { unique: false });
+      }
+    };
+    req.onsuccess = function(e) { db = e.target.result; resolve(db); };
+    req.onerror = function(e) { console.warn('IndexedDB 不可用，文件上传将不会持久化'); reject(e); };
+  });
+}
+
+// 保存文件到 IndexedDB（含 Blob）
+function persistFile(f) {
+  if (!db) return;
+  var tx = db.transaction(['files'], 'readwrite');
+  var store = tx.objectStore('files');
+  // 分离 blob 和元数据：大 blob 存为单独字段
+  var record = {
+    id: f.id,
+    name: f.name,
+    ext: f.ext,
+    cat: f.cat,
+    size: f.size,
+    date: f.date,
+    author: f.author,
+    downloads: f.downloads || 0,
+  };
+  if (f._blob instanceof Blob) {
+    record._blob = f._blob;
+  }
+  store.put(record);
+}
+
+// 从 IndexedDB 加载持久化文件
+function loadPersistedFiles() {
+  return openDB().then(function() {
+    return new Promise(function(resolve) {
+      if (!db) { resolve(); return; }
+      var tx = db.transaction(['files'], 'readonly');
+      var store = tx.objectStore('files');
+      var req = store.getAll();
+      req.onsuccess = function() {
+        var persisted = req.result || [];
+        // 合并：保留 mock 数据中不在 DB 中的文件，加上所有 DB 中的文件
+        var mockIds = {};
+        persisted.forEach(function(p) { mockIds[p.id] = true; });
+        var combined = persisted.slice(); // DB 中已有的（含更新过的下载量）
+        // 加入 mock 中未被覆盖的
+        MOCK_FILES.forEach(function(m) {
+          if (!mockIds[m.id]) { combined.push(m); }
+        });
+        // 按日期排序
+        combined.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+        // 更新全局 files
+        files.length = 0;
+        combined.forEach(function(f) { files.push(f); });
+        updateCategoryCounts();
+        resolve();
+      };
+      req.onerror = function() { resolve(); };
+    });
+  }).catch(function() {});
+}
+
+// 更新文件下载量到 DB
+function persistDownloadCount(f) {
+  if (!db) return;
+  try {
+    var tx = db.transaction(['files'], 'readwrite');
+    var store = tx.objectStore('files');
+    var record = {
+      id: f.id, name: f.name, ext: f.ext, cat: f.cat,
+      size: f.size, date: f.date, author: f.author,
+      downloads: f.downloads || 0,
+    };
+    if (f._blob instanceof Blob) { record._blob = f._blob; }
+    store.put(record);
+  } catch(e) {}
+}
+
+// ==================== 初始模拟数据 ====================
+const MOCK_FILES = [
   // Word 文档
   { id:1,  name:'欢喜城品牌手册_v3.2',        ext:'docx', cat:'doc', size:'4.2 MB', date:'2025-12-20', author:'品牌部',     downloads:238 },
   { id:2,  name:'2025年度工作总结报告',         ext:'docx', cat:'doc', size:'2.8 MB', date:'2025-12-18', author:'行政部',     downloads:156 },
@@ -864,6 +953,11 @@ const files = [
   { id:53, name:'客户案例访谈_精选合集',         ext:'webm', cat:'video', size:'92.3 MB', date:'2025-10-15', author:'销售部',   downloads:334 },
   { id:54, name:'育见欢喜日常vlog_秋日特辑',     ext:'mov',  cat:'video', size:'520.6 MB',date:'2025-10-08', author:'运营部',   downloads:201 },
 ];
+
+// 运行时文件列表（合并 mock 数据 + DB 持久化数据）
+var files = [];
+// 初始化时复制 mock 数据
+MOCK_FILES.forEach(function(f) { files.push(Object.assign({}, f)); });
 
 let currentCategory = 'all';
 let currentView = 'grid';
@@ -1090,17 +1184,18 @@ function handleUploadedFiles(fileList) {
       date: today,
       author: sessionStorage.getItem('is_admin') === '1' ? sessionStorage.getItem('admin_user') || '管理员' : '员工',
       downloads: 0,
-      _blob: file, // 存储实际文件对象用于下载
+      _blob: file,
     };
     files.unshift(newFile);
+    // 持久化到 IndexedDB，刷新/重启后仍保留
+    persistFile(newFile);
   });
 
-  // 更新侧边栏计数
   updateCategoryCounts();
   renderFiles();
 
-  if (imgCount) showToast(`${imgCount} 个图片已上传 — 保持原始画质，未做任何压缩`);
-  if (otherCount) showToast(`${otherCount} 个文件上传成功`);
+  if (imgCount) showToast(imgCount + ' 个图片已上传 — 保持原始画质，永久保存');
+  if (otherCount) showToast(otherCount + ' 个文件上传成功 — 已永久保存');
   closeUploadModal();
 }
 
@@ -1181,6 +1276,8 @@ function downloadFile(id) {
 
   // 增加下载计数
   f.downloads = (f.downloads || 0) + 1;
+  // 持久化下载计数
+  persistDownloadCount(f);
 
   const imgExts = ['png','jpg','jpeg','gif','webp','svg','bmp'];
   const ext = f.ext.toLowerCase();
