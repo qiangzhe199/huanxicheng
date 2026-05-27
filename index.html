@@ -263,14 +263,14 @@ if (typeof tailwind !== 'undefined') {
 
     <!-- 分类导航标签 -->
     <nav class="flex items-center flex-1 overflow-x-auto" id="topNav">
-      <a href="#" class="nav-tab active" data-category="all">全部<span class="badge">54</span></a>
-      <a href="#" class="nav-tab" data-category="doc">Word<span class="badge">10</span></a>
-      <a href="#" class="nav-tab" data-category="xls">Excel<span class="badge">8</span></a>
-      <a href="#" class="nav-tab" data-category="ppt">PPT<span class="badge">8</span></a>
-      <a href="#" class="nav-tab" data-category="pdf">PDF<span class="badge">7</span></a>
-      <a href="#" class="nav-tab" data-category="img">图片<span class="badge">10</span></a>
-      <a href="#" class="nav-tab" data-category="zip">压缩包<span class="badge">5</span></a>
-      <a href="#" class="nav-tab" data-category="video">视频<span class="badge">6</span></a>
+      <a href="#" class="nav-tab active" data-category="all">全部<span class="badge">0</span></a>
+      <a href="#" class="nav-tab" data-category="doc">Word<span class="badge">0</span></a>
+      <a href="#" class="nav-tab" data-category="xls">Excel<span class="badge">0</span></a>
+      <a href="#" class="nav-tab" data-category="ppt">PPT<span class="badge">0</span></a>
+      <a href="#" class="nav-tab" data-category="pdf">PDF<span class="badge">0</span></a>
+      <a href="#" class="nav-tab" data-category="img">图片<span class="badge">0</span></a>
+      <a href="#" class="nav-tab" data-category="zip">压缩包<span class="badge">0</span></a>
+      <a href="#" class="nav-tab" data-category="video">视频<span class="badge">0</span></a>
     </nav>
 
     <!-- 右侧操作 -->
@@ -334,9 +334,9 @@ if (typeof tailwind !== 'undefined') {
   <div class="mb-6 flex items-center gap-3 text-xs text-gray-400">
     <span>存储空间</span>
     <div class="flex-1 max-w-[200px] h-1.5 bg-gray-100 rounded-full overflow-hidden">
-      <div class="h-full bg-orange-400 rounded-full" style="width:4.7%"></div>
+      <div class="h-full bg-orange-400 rounded-full" style="width:0%"></div>
     </div>
-    <span>23.7 / 500 GB</span>
+    <span>0 / 500 GB</span>
   </div>
 
   <!-- 文件网格 -->
@@ -847,19 +847,9 @@ function loadPersistedFiles() {
       var req = store.getAll();
       req.onsuccess = function() {
         var persisted = req.result || [];
-        // 合并：保留 mock 数据中不在 DB 中的文件，加上所有 DB 中的文件
-        var mockIds = {};
-        persisted.forEach(function(p) { mockIds[p.id] = true; });
-        var combined = persisted.slice(); // DB 中已有的（含更新过的下载量）
-        // 加入 mock 中未被覆盖的
-        MOCK_FILES.forEach(function(m) {
-          if (!mockIds[m.id]) { combined.push(m); }
-        });
-        // 按日期排序
-        combined.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
-        // 更新全局 files
+        persisted.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
         files.length = 0;
-        combined.forEach(function(f) { files.push(f); });
+        persisted.forEach(function(f) { files.push(f); });
         updateCategoryCounts();
         resolve();
       };
@@ -884,80 +874,8 @@ function persistDownloadCount(f) {
   } catch(e) {}
 }
 
-// ==================== 初始模拟数据 ====================
-const MOCK_FILES = [
-  // Word 文档
-  { id:1,  name:'欢喜城品牌手册_v3.2',        ext:'docx', cat:'doc', size:'4.2 MB', date:'2025-12-20', author:'品牌部',     downloads:238 },
-  { id:2,  name:'2025年度工作总结报告',         ext:'docx', cat:'doc', size:'2.8 MB', date:'2025-12-18', author:'行政部',     downloads:156 },
-  { id:3,  name:'员工入职指南_2025新版',        ext:'docx', cat:'doc', size:'1.5 MB', date:'2025-11-30', author:'HR',         downloads:421 },
-  { id:4,  name:'合作伙伴协议模板',             ext:'docx', cat:'doc', size:'0.8 MB', date:'2025-11-15', author:'法务部',     downloads:189 },
-  { id:5,  name:'项目管理规范文档',             ext:'docx', cat:'doc', size:'3.1 MB', date:'2025-10-28', author:'PMO',        downloads:112 },
-  { id:6,  name:'客户服务标准流程',             ext:'docx', cat:'doc', size:'1.9 MB', date:'2025-10-12', author:'客服部',     downloads:297 },
-  { id:7,  name:'数据安全管理制度',             ext:'docx', cat:'doc', size:'2.3 MB', date:'2025-09-25', author:'IT部',       downloads:345 },
-  { id:8,  name:'市场推广方案模板',             ext:'docx', cat:'doc', size:'1.6 MB', date:'2025-09-10', author:'市场部',     downloads:178 },
-  { id:9,  name:'季度绩效考核标准',             ext:'docx', cat:'doc', size:'0.9 MB', date:'2025-08-22', author:'HR',         downloads:403 },
-  { id:10, name:'供应商评估报告模板',           ext:'docx', cat:'doc', size:'2.1 MB', date:'2025-08-05', author:'采购部',     downloads:134 },
-
-  // Excel 表格
-  { id:11, name:'员工通讯录_2025',              ext:'xlsx', cat:'xls', size:'1.2 MB', date:'2025-12-22', author:'HR',         downloads:512 },
-  { id:12, name:'项目进度跟踪表',               ext:'xlsx', cat:'xls', size:'0.6 MB', date:'2025-12-10', author:'PMO',        downloads:267 },
-  { id:13, name:'年度财务预算表',               ext:'xlsx', cat:'xls', size:'2.4 MB', date:'2025-11-20', author:'财务部',     downloads:198 },
-  { id:14, name:'客户信息汇总表',               ext:'xlsx', cat:'xls', size:'3.8 MB', date:'2025-11-08', author:'销售部',     downloads:332 },
-  { id:15, name:'库存管理明细表',               ext:'xlsx', cat:'xls', size:'1.7 MB', date:'2025-10-18', author:'仓储部',     downloads:145 },
-  { id:16, name:'培训签到统计表',               ext:'xlsx', cat:'xls', size:'0.4 MB', date:'2025-10-05', author:'HR',         downloads:289 },
-  { id:17, name:'销售业绩汇总_2025Q4',          ext:'xlsx', cat:'xls', size:'2.9 MB', date:'2025-09-15', author:'销售部',     downloads:376 },
-  { id:18, name:'设备资产清单',                 ext:'xlsx', cat:'xls', size:'1.1 MB', date:'2025-09-01', author:'IT部',       downloads:201 },
-
-  // PPT 演示
-  { id:19, name:'季度工作汇报模板_标准版',      ext:'pptx', cat:'ppt', size:'8.6 MB', date:'2025-12-25', author:'行政部',     downloads:673 },
-  { id:20, name:'新员工入职培训课件',           ext:'pptx', cat:'ppt', size:'15.2 MB',date:'2025-12-15', author:'HR',         downloads:891 },
-  { id:21, name:'产品发布会演示文稿',           ext:'pptx', cat:'ppt', size:'22.4 MB',date:'2025-11-25', author:'产品部',     downloads:445 },
-  { id:22, name:'年度战略规划方案',             ext:'pptx', cat:'ppt', size:'18.7 MB',date:'2025-11-10', author:'管理层',     downloads:534 },
-  { id:23, name:'公司介绍_Corporate_Profile',   ext:'pptx', cat:'ppt', size:'12.3 MB',date:'2025-10-22', author:'品牌部',     downloads:723 },
-  { id:24, name:'技术架构分享会',               ext:'pptx', cat:'ppt', size:'9.8 MB', date:'2025-10-08', author:'技术部',     downloads:312 },
-  { id:25, name:'客户案例分享集',               ext:'pptx', cat:'ppt', size:'16.5 MB',date:'2025-09-20', author:'销售部',     downloads:287 },
-  { id:26, name:'团建活动方案策划',             ext:'pptx', cat:'ppt', size:'7.4 MB', date:'2025-09-05', author:'HR',         downloads:456 },
-
-  // PDF 资料
-  { id:27, name:'公司介绍手册_2025版',          ext:'pdf',  cat:'pdf', size:'5.6 MB', date:'2025-12-28', author:'品牌部',     downloads:1024 },
-  { id:28, name:'产品使用说明书_v2.3',          ext:'pdf',  cat:'pdf', size:'3.2 MB', date:'2025-12-12', author:'产品部',     downloads:567 },
-  { id:29, name:'行业分析报告_2025年度',        ext:'pdf',  cat:'pdf', size:'8.9 MB', date:'2025-11-22', author:'市场部',     downloads:389 },
-  { id:30, name:'企业培训认证证书',             ext:'pdf',  cat:'pdf', size:'1.1 MB', date:'2025-11-05', author:'HR',         downloads:234 },
-  { id:31, name:'质量管理体系文件',             ext:'pdf',  cat:'pdf', size:'4.7 MB', date:'2025-10-15', author:'质量部',     downloads:178 },
-  { id:32, name:'安全生产手册',                 ext:'pdf',  cat:'pdf', size:'6.3 MB', date:'2025-09-28', author:'行政部',     downloads:345 },
-  { id:33, name:'合作伙伴白皮书',               ext:'pdf',  cat:'pdf', size:'2.8 MB', date:'2025-09-12', author:'商务部',     downloads:267 },
-
-  // 图片素材
-  { id:34, name:'公司LOGO_高清版',              ext:'png',  cat:'img', size:'2.4 MB', date:'2025-12-26', author:'品牌部',     downloads:892 },
-  { id:35, name:'团队合影_2025年度',            ext:'jpg',  cat:'img', size:'5.8 MB', date:'2025-12-15', author:'HR',         downloads:567 },
-  { id:36, name:'产品宣传海报_A系列',           ext:'png',  cat:'img', size:'3.6 MB', date:'2025-11-28', author:'市场部',     downloads:423 },
-  { id:37, name:'办公环境展示图集',             ext:'jpg',  cat:'img', size:'7.2 MB', date:'2025-11-18', author:'行政部',     downloads:312 },
-  { id:38, name:'品牌VI视觉规范',               ext:'png',  cat:'img', size:'4.1 MB', date:'2025-10-30', author:'品牌部',     downloads:678 },
-  { id:39, name:'活动照片集_年会2025',          ext:'jpg',  cat:'img', size:'9.5 MB', date:'2025-10-20', author:'HR',         downloads:534 },
-  { id:40, name:'社交媒体封面模板',             ext:'png',  cat:'img', size:'1.8 MB', date:'2025-10-08', author:'市场部',     downloads:389 },
-  { id:41, name:'产品实物拍摄_高清',            ext:'jpg',  cat:'img', size:'6.7 MB', date:'2025-09-25', author:'产品部',     downloads:445 },
-  { id:42, name:'名片设计模板',                 ext:'png',  cat:'img', size:'0.9 MB', date:'2025-09-15', author:'品牌部',     downloads:267 },
-  { id:43, name:'官方网站Banner素材',           ext:'png',  cat:'img', size:'2.2 MB', date:'2025-09-01', author:'设计部',     downloads:356 },
-
-  // 压缩包
-  { id:44, name:'品牌物料合集_完整版',          ext:'zip',  cat:'zip', size:'45.6 MB',date:'2025-12-20', author:'品牌部',     downloads:234 },
-  { id:45, name:'项目资料归档_Q4',              ext:'zip',  cat:'zip', size:'32.1 MB',date:'2025-12-05', author:'PMO',        downloads:156 },
-  { id:46, name:'培训资料包_新人必备',          ext:'zip',  cat:'zip', size:'28.4 MB',date:'2025-11-15', author:'HR',         downloads:512 },
-  { id:47, name:'产品原型设计稿',               ext:'zip',  cat:'zip', size:'18.9 MB',date:'2025-10-25', author:'产品部',     downloads:189 },
-  { id:48, name:'年货节活动素材包',             ext:'zip',  cat:'zip', size:'52.3 MB',date:'2025-10-10', author:'市场部',     downloads:378 },
-  // 视频
-  { id:49, name:'欢喜城品牌宣传片_导演剪辑版',   ext:'mp4',  cat:'video', size:'385.2 MB',date:'2025-12-22', author:'品牌部',   downloads:567 },
-  { id:50, name:'2025年会精彩回顾',             ext:'mp4',  cat:'video', size:'256.8 MB',date:'2025-12-18', author:'行政部',   downloads:892 },
-  { id:51, name:'产品发布会全程录像',           ext:'mov',  cat:'video', size:'1.2 GB',  date:'2025-11-30', author:'市场部',   downloads:445 },
-  { id:52, name:'员工培训系列_企业文化篇',       ext:'mp4',  cat:'video', size:'178.5 MB',date:'2025-11-20', author:'HR',       downloads:723 },
-  { id:53, name:'客户案例访谈_精选合集',         ext:'webm', cat:'video', size:'92.3 MB', date:'2025-10-15', author:'销售部',   downloads:334 },
-  { id:54, name:'育见欢喜日常vlog_秋日特辑',     ext:'mov',  cat:'video', size:'520.6 MB',date:'2025-10-08', author:'运营部',   downloads:201 },
-];
-
-// 运行时文件列表（合并 mock 数据 + DB 持久化数据）
+// ==================== 文件数据 ====================
 var files = [];
-// 初始化时复制 mock 数据
-MOCK_FILES.forEach(function(f) { files.push(Object.assign({}, f)); });
 
 let currentCategory = 'all';
 let currentView = 'grid';
@@ -1279,81 +1197,15 @@ function downloadFile(id) {
   // 持久化下载计数
   persistDownloadCount(f);
 
-  const imgExts = ['png','jpg','jpeg','gif','webp','svg','bmp'];
-  const ext = f.ext.toLowerCase();
-
-  // 如果是真实上传的文件，直接下载原始文件（不压缩图片）
+  // 真实上传文件，直接下载原始文件
   if (f._blob) {
     triggerDownload(f._blob, f.name + '.' + f.ext);
-    const isImg = f._blob.type.startsWith('image/');
-    showToast(`正在下载 "${f.name}.${f.ext}"` + (isImg ? ' — 保持原始画质，未压缩' : ''));
+    var isImg = f._blob.type.startsWith('image/');
+    showToast('正在下载 "' + f.name + '.' + f.ext + '"' + (isImg ? ' — 保持原始画质，未压缩' : ''));
     return;
   }
 
-  // 图片类型：使用真实 logo.png 作为示例下载
-  if (imgExts.includes(ext)) {
-    fetch('logo.png')
-      .then(r => r.blob())
-      .then(blob => {
-        triggerDownload(blob, f.name + '.' + f.ext);
-        showToast(`正在下载 "${f.name}.${f.ext}" — 保持原始画质，未压缩`);
-      })
-      .catch(() => {
-        // 如果 logo.png 不可用，生成占位图片
-        const canvas = document.createElement('canvas');
-        canvas.width = 800; canvas.height = 600;
-        const ctx = canvas.getContext('2d');
-        const gradient = ctx.createLinearGradient(0,0,800,600);
-        gradient.addColorStop(0, '#f97316');
-        gradient.addColorStop(1, '#c2410c');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0,0,800,600);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 48px "PingFang SC","Microsoft YaHei",sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(f.name, 400, 300);
-        canvas.toBlob(blob => {
-          triggerDownload(blob, f.name + '.png');
-          showToast(`正在下载 "${f.name}.png" — 保持原始画质，未压缩`);
-        }, 'image/png', 1.0);
-      });
-    return;
-  }
-
-  // 文档类型：生成真实可下载的占位文件
-  let content = '';
-  let mimeType = 'application/octet-stream';
-
-  switch (ext) {
-    case 'docx':
-      content = `[欢喜城·育见欢喜]\n\n文件名: ${f.name}.${f.ext}\n上传者: ${f.author}\n日期: ${f.date}\n大小: ${f.size}\n\n这是一个 Word 文档占位文件。实际部署后将包含真实文档内容。\n\n公司内部资料，请勿外传。`;
-      mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      break;
-    case 'xlsx':
-      content = `名称,部门,日期,大小\n${f.name},${f.author},${f.date},${f.size}\n示例数据1,部门A,2025-01-01,100\n示例数据2,部门B,2025-02-01,200\n示例数据3,部门C,2025-03-01,300`;
-      mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      break;
-    case 'pptx':
-      content = `欢喜城·育见欢喜\n\n=== ${f.name} ===\n\n作者: ${f.author}\n日期: ${f.date}\n\n幻灯片1: 封面\n幻灯片2: 目录\n幻灯片3: 内容详情\n幻灯片4: 总结\n\n实际部署后将包含真实PPT内容。`;
-      mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
-      break;
-    case 'pdf':
-      content = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 44 >>\nstream\nBT /F1 24 Tf 100 700 Td (${f.name}) Tj ET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000279 00000 n \n0000000375 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n435\n%%EOF`;
-      mimeType = 'application/pdf';
-      break;
-    case 'zip':
-      content = new Uint8Array([80,75,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
-      mimeType = 'application/zip';
-      break;
-    default:
-      content = `文件: ${f.name}.${f.ext}\n上传者: ${f.author}\n日期: ${f.date}\n大小: ${f.size}`;
-      mimeType = 'text/plain';
-  }
-
-  const blob = new Blob([content], { type: mimeType });
-  triggerDownload(blob, f.name + '.' + f.ext);
-  const isImg = imgExts.includes(ext);
-  showToast(`正在下载 "${f.name}.${f.ext}"` + (isImg ? ' — 保持原始画质，未压缩' : ''));
+  showToast('文件数据不可用');
 }
 
 // 触发浏览器下载
