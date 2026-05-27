@@ -430,43 +430,36 @@ tailwind.config = {
 </div>
 
 <script>
-// ==================== 密码验证系统 ====================
-(async function() {
-  // SHA-256 哈希（使用 Web Crypto API）
-  async function sha256(message) {
-    const data = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  // 生成今日密码: HX + MMDD（例如 5月27日 = HX0527）
+// ==================== 密码验证系统（简化明文验证，兼容所有浏览器） ====================
+(function() {
+  // 生成今日员工密码: HX + MMDD（例如 5月27日 = HX0527）
   function getTodayPassword() {
-    const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+    var now = new Date();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
     return 'HX' + month + day;
   }
 
   // 更新日期水印
-  const now = new Date();
+  var now = new Date();
   document.getElementById('dateWatermark').textContent =
     now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日';
 
-  // ==================== 管理员模式 ====================
-  let isAdminMode = false;
-  const ADMIN_USERNAME = 'admin';
-  async function getAdminPasswordHash() {
-    return await sha256('HXadmin2025');
-  }
+  // 管理员账号（明文验证）
+  var ADMIN_ACCOUNTS = [
+    { user: 'admin',        pass: 'HXadmin2025' },
+    { user: 'huanxicheng',  pass: 'HXcheng2025' }
+  ];
 
+  // 管理员模式切换
+  var isAdminMode = false;
   window.toggleAdminMode = function() {
     isAdminMode = !isAdminMode;
-    const userField = document.getElementById('adminUserField');
-    const toggleText = document.getElementById('adminToggleText');
-    const pwdLabel = document.getElementById('pwdLabel');
-    const pwdInput = document.getElementById('passwordInput');
-    const toggle = document.getElementById('adminToggle');
+    var userField = document.getElementById('adminUserField');
+    var toggleText = document.getElementById('adminToggleText');
+    var pwdLabel = document.getElementById('pwdLabel');
+    var pwdInput = document.getElementById('passwordInput');
+    var toggle = document.getElementById('adminToggle');
 
     if (isAdminMode) {
       userField.classList.remove('hidden');
@@ -474,14 +467,12 @@ tailwind.config = {
       pwdLabel.textContent = '管理员密码';
       pwdInput.placeholder = '请输入管理员密码';
       toggle.classList.add('text-orange-400');
-      toggle.classList.remove('text-white/25');
     } else {
       userField.classList.add('hidden');
       toggleText.textContent = '管理员入口';
       pwdLabel.textContent = '访问密码';
       pwdInput.placeholder = '请输入今日访问密码';
       toggle.classList.remove('text-orange-400');
-      toggle.classList.add('text-white/25');
       document.getElementById('adminUsername').value = '';
     }
     pwdInput.value = '';
@@ -489,119 +480,78 @@ tailwind.config = {
     pwdInput.focus();
   };
 
-  // ==================== 认证系统（优先初始化，不受粒子系统影响） ====================
-  const MAX_ATTEMPTS = 3;
-  const LOCKOUT_MINUTES = 30;
-  let failedAttempts = parseInt(sessionStorage.getItem('login_fails') || '0');
-  let lockUntil = parseInt(sessionStorage.getItem('login_lock') || '0');
+  // 安全变量
+  var MAX_ATTEMPTS = 3;
+  var LOCKOUT_MINUTES = 30;
+  var failedAttempts = parseInt(sessionStorage.getItem('login_fails') || '0');
+  var lockUntil = parseInt(sessionStorage.getItem('login_lock') || '0');
 
-  const ADMIN_ACCOUNTS = [
-    { user: 'admin',      passHash: null },
-    { user: 'huanxicheng', passHash: null }
-  ];
-  (async function() {
-    ADMIN_ACCOUNTS[0].passHash = await sha256('HXadmin2025');
-    ADMIN_ACCOUNTS[1].passHash = await sha256('HXcheng2025');
-  })();
+  // 登录处理（同步，无异步延迟问题）
+  window.handleLogin = function() {
+    var input = document.getElementById('passwordInput');
+    var errorEl = document.getElementById('loginError');
+    var btn = document.getElementById('loginBtn');
+    var btnText = document.getElementById('loginBtnText');
 
-  // 暴露登录处理函数
-  window.handleLogin = async function() {
-    const input = document.getElementById('passwordInput');
-    const errorEl = document.getElementById('loginError');
-    const btn = document.getElementById('loginBtn');
-    const btnText = document.getElementById('loginBtnText');
-
+    // 锁定检查
     if (lockUntil && Date.now() < lockUntil) {
-      const remainMin = Math.ceil((lockUntil - Date.now()) / 60000);
+      var remainMin = Math.ceil((lockUntil - Date.now()) / 60000);
       errorEl.textContent = '⛔ 登录已锁定，请在 ' + remainMin + ' 分钟后重试';
-      input.classList.add('error');
-      setTimeout(() => input.classList.remove('error'), 500);
       return;
     }
 
-    const pwd = input.value.trim();
+    var pwd = input.value.trim();
     if (!pwd) {
       errorEl.textContent = isAdminMode ? '请输入管理员账号和密码' : '请输入访问密码';
-      input.classList.add('error');
-      setTimeout(() => input.classList.remove('error'), 500);
       return;
     }
 
+    // 管理员登录
     if (isAdminMode) {
-      const username = document.getElementById('adminUsername').value.trim();
+      var username = document.getElementById('adminUsername').value.trim();
       if (!username) {
         errorEl.textContent = '请输入管理员账号';
-        document.getElementById('adminUsername').classList.add('error');
-        setTimeout(() => document.getElementById('adminUsername').classList.remove('error'), 500);
         return;
       }
-      const admin = ADMIN_ACCOUNTS.find(a => a.user === username);
-      if (!admin || !admin.passHash) {
-        await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
+      var admin = ADMIN_ACCOUNTS.find(function(a) { return a.user === username; });
+      if (!admin || pwd !== admin.pass) {
         failedAttempts++;
         sessionStorage.setItem('login_fails', failedAttempts);
         errorEl.textContent = '❌ 管理员账号或密码错误';
-        input.classList.add('error');
-        setTimeout(() => input.classList.remove('error'), 500);
         input.value = '';
         input.focus();
         return;
       }
-      btn.disabled = true;
-      btnText.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>验证中...';
-      await new Promise(r => setTimeout(r, 800 + Math.random() * 500));
-      const inputHash = await sha256(pwd);
-      if (inputHash === admin.passHash) {
-        sessionStorage.setItem('auth_token', inputHash);
-        sessionStorage.setItem('auth_time', Date.now());
-        sessionStorage.setItem('is_admin', '1');
-        sessionStorage.setItem('admin_user', username);
-        sessionStorage.removeItem('login_fails');
-        sessionStorage.removeItem('login_lock');
-        errorEl.textContent = '';
-        input.classList.remove('error');
-        btnText.innerHTML = '<i class="fa fa-check mr-2"></i>管理员验证通过';
-        btn.classList.add('bg-green-500');
-        await new Promise(r => setTimeout(r, 400));
-        showApp();
-        return;
-      }
-      failedAttempts++;
-      sessionStorage.setItem('login_fails', failedAttempts);
-      errorEl.textContent = '❌ 管理员密码错误';
-      input.classList.add('error');
-      setTimeout(() => input.classList.remove('error'), 500);
-      input.value = '';
-      input.focus();
-      btn.disabled = false;
-      btnText.innerHTML = '<i class="fa fa-sign-in mr-2"></i>验证访问';
+      // 管理员验证通过
+      sessionStorage.setItem('auth_token', admin.user + '_' + Date.now());
+      sessionStorage.setItem('auth_time', Date.now());
+      sessionStorage.setItem('is_admin', '1');
+      sessionStorage.setItem('admin_user', username);
+      sessionStorage.removeItem('login_fails');
+      sessionStorage.removeItem('login_lock');
+      btnText.innerHTML = '<i class="fa fa-check mr-2"></i>管理员验证通过';
+      btn.classList.add('bg-green-500');
+      setTimeout(function() { showApp(); }, 300);
       return;
     }
 
-    // 普通用户模式
-    btn.disabled = true;
-    btnText.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>验证中...';
-    await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
-
-    const todayPwd = getTodayPassword();
-    const inputHash = await sha256(pwd);
-    const correctHash = await sha256(todayPwd);
-
-    if (inputHash === correctHash) {
-      sessionStorage.setItem('auth_token', correctHash);
+    // 普通员工登录 — 直接比对今日密码
+    var todayPwd = getTodayPassword();
+    if (pwd === todayPwd) {
+      // 验证成功
+      sessionStorage.setItem('auth_token', todayPwd);
       sessionStorage.setItem('auth_time', Date.now());
       sessionStorage.removeItem('login_fails');
       sessionStorage.removeItem('login_lock');
       errorEl.textContent = '';
-      input.classList.remove('error');
       btnText.innerHTML = '<i class="fa fa-check mr-2"></i>验证通过';
       btn.classList.add('bg-green-500');
-      await new Promise(r => setTimeout(r, 400));
-      showApp();
+      setTimeout(function() { showApp(); }, 300);
     } else {
+      // 验证失败
       failedAttempts++;
       sessionStorage.setItem('login_fails', failedAttempts);
-      const remaining = MAX_ATTEMPTS - failedAttempts;
+      var remaining = MAX_ATTEMPTS - failedAttempts;
       if (remaining <= 0) {
         lockUntil = Date.now() + LOCKOUT_MINUTES * 60 * 1000;
         sessionStorage.setItem('login_lock', lockUntil);
@@ -611,19 +561,17 @@ tailwind.config = {
       } else {
         errorEl.textContent = '❌ 密码错误，请重试（剩余 ' + remaining + ' 次）';
       }
-      input.classList.add('error');
-      setTimeout(() => input.classList.remove('error'), 500);
       input.value = '';
       input.focus();
-      btn.disabled = false;
-      btnText.innerHTML = '<i class="fa fa-sign-in mr-2"></i>验证访问';
     }
   };
 
+  // 回车提交
   document.getElementById('passwordInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') handleLogin();
   });
 
+  // 清除过期锁定
   if (lockUntil && Date.now() >= lockUntil) {
     sessionStorage.removeItem('login_lock');
     sessionStorage.setItem('login_fails', '0');
@@ -631,16 +579,16 @@ tailwind.config = {
     lockUntil = 0;
   }
 
-  // 检查已有有效会话
-  const authToken = sessionStorage.getItem('auth_token');
-  const authTime = parseInt(sessionStorage.getItem('auth_time') || '0');
-  const SESSION_MAX = 8 * 60 * 60 * 1000;
-  if (authToken && authTime && (Date.now() - authTime < SESSION_MAX)) {
-    const todayPwd = getTodayPassword();
-    const correctHash = await sha256(todayPwd);
-    if (authToken === correctHash) {
-      showApp();
-      return;
+  // 检查已有会话（8小时有效）
+  var authToken = sessionStorage.getItem('auth_token');
+  var authTime = parseInt(sessionStorage.getItem('auth_time') || '0');
+  if (authToken && authTime && (Date.now() - authTime < 8*60*60*1000)) {
+    if (!isAdminMode) {
+      var todayPwd = getTodayPassword();
+      if (authToken === todayPwd) {
+        showApp();
+        return;
+      }
     }
   }
   sessionStorage.removeItem('auth_token');
