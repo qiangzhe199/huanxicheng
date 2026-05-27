@@ -92,34 +92,62 @@ if (typeof tailwind !== 'undefined') {
 </script>
 <style>
   * { font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif; }
-  body { background: #fafafa; }
-  .sidebar { transition: transform 0.3s ease; }
-  .file-card { transition: all 0.2s ease; cursor: pointer; }
-  .file-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-  .btn-primary { background: #1a1a1a; color: #fff; transition: all 0.2s; }
-  .btn-primary:hover { background: #333; }
-  .category-item { transition: all 0.15s; border-radius: 6px; }
-  .category-item:hover, .category-item.active { background: rgba(255,255,255,0.08); color: #fff; }
-  .category-item .badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-size: 10px; padding: 1px 6px; border-radius: 3px; }
-  .category-item.active .badge { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
-  .file-icon-word { color: #94a3b8; }
-  .file-icon-excel { color: #94a3b8; }
-  .file-icon-ppt { color: #94a3b8; }
-  .file-icon-pdf { color: #94a3b8; }
-  .file-icon-img { color: #94a3b8; }
-  .file-icon-zip { color: #94a3b8; }
+  body { background: #f5f5f5; color: #1a1a1a; }
+  /* ========== 顶部导航栏 ========== */
+  .top-nav { background: #fff; border-bottom: 1px solid #e5e5e5; position: sticky; top: 0; z-index: 50; }
+  .nav-tab { color: #666; transition: all 0.15s; border-bottom: 2px solid transparent; padding: 12px 16px; font-size: 13px; white-space: nowrap; cursor: pointer; }
+  .nav-tab:hover { color: #1a1a1a; }
+  .nav-tab.active { color: #1a1a1a; border-bottom-color: #f97316; font-weight: 600; }
+  .nav-tab .badge { background: #f0f0f0; color: #999; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; }
+  .nav-tab.active .badge { background: #fff7ed; color: #f97316; }
+  /* ========== 搜索框 ========== */
+  .search-input { background: #f5f5f5; border: 1px solid transparent; color: #1a1a1a; transition: all 0.2s; }
+  .search-input:focus { background: #fff; border-color: #e5e5e5; outline: none; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .search-input::placeholder { color: #bbb; }
+  /* ========== 文件卡片 (新片场风格) ========== */
+  .file-card { transition: all 0.2s ease; cursor: pointer; background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+  .file-card:hover { transform: translateY(-2px); border-color: #ddd; box-shadow: 0 8px 25px rgba(0,0,0,0.06); }
+  .file-thumb { aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .file-thumb-doc { background: #f8f9fb; }
+  .file-thumb-xls { background: #f3f8f3; }
+  .file-thumb-ppt { background: #fdf6f5; }
+  .file-thumb-pdf { background: #f5f5fa; }
+  .file-thumb-img { background: #f4f7fa; }
+  .file-thumb-zip { background: #fafaf5; }
+  .file-thumb-video { background: #f4f4fa; }
+  .file-thumb-icon { opacity: 0.3; transition: opacity 0.2s; }
+  .file-card:hover .file-thumb-icon { opacity: 0.5; }
+  .file-card .thumb-duration { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.65); color: rgba(255,255,255,0.8); font-size: 10px; padding: 2px 6px; border-radius: 3px; }
+  /* ========== 按钮 ========== */
+  .btn-primary { background: #f97316; color: #fff; transition: all 0.2s; border: none; }
+  .btn-primary:hover { background: #ea580c; }
+  .btn-outline { background: transparent; color: #666; border: 1px solid #ddd; transition: all 0.2s; }
+  .btn-outline:hover { border-color: #bbb; color: #1a1a1a; }
+  /* ========== 动画 ========== */
   @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .animate-in { animation: fadeInUp 0.4s ease forwards; }
-  .modal-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); }
-  .upload-zone { border: 1px dashed #d1d5db; transition: all 0.2s; }
-  .upload-zone:hover, .upload-zone.drag-over { border-color: #1a1a1a; background: rgba(0,0,0,0.02); }
-  ::-webkit-scrollbar { width: 4px; }
+  /* ========== 弹窗 ========== */
+  .modal-overlay { background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); }
+  .upload-zone { border: 1px dashed #ddd; transition: all 0.2s; border-radius: 12px; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: #f97316; background: #fff7ed; }
+  /* ========== 滚动条 ========== */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+  ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #bbb; }
   img { image-rendering: auto; }
-  .view-btn { color: #9ca3af; transition: all 0.15s; }
-  .view-btn.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  /* ========== 视图切换 ========== */
+  .view-btn { color: #bbb; transition: all 0.15s; }
+  .view-btn.active { background: #f5f5f5; color: #1a1a1a; }
+  .view-btn:hover { color: #666; }
+  /* ========== 次级导航标签 ========== */
+  .sub-nav-tag { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: #f5f5f5; color: #888; white-space: nowrap; transition: all 0.15s; cursor: pointer; text-decoration: none; }
+  .sub-nav-tag:hover { background: #eee; color: #555; }
+  .sub-nav-tag.active { background: #1a1a1a; color: #fff; }
+  /* ========== 内容标签切换 ========== */
+  .content-tab { font-size: 14px; color: #999; padding-bottom: 10px; border-bottom: 2px solid transparent; transition: all 0.15s; cursor: pointer; text-decoration: none; margin-bottom: -1px; }
+  .content-tab:hover { color: #555; }
+  .content-tab.active { color: #1a1a1a; border-bottom-color: #f97316; font-weight: 600; }
   /* ========== 登录页面样式 ========== */
   .login-bg { background: #0d0d0d; position: relative; overflow: hidden; }
   .login-bg::before {
@@ -156,7 +184,7 @@ if (typeof tailwind !== 'undefined') {
   #particleCanvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body>
 
 <!-- ==================== 登录页面 ==================== -->
 <div id="loginScreen" class="fixed inset-0 z-[100] login-bg flex items-center justify-center">
@@ -166,7 +194,7 @@ if (typeof tailwind !== 'undefined') {
   <!-- 登录卡片 -->
   <div class="login-card rounded-3xl px-10 py-12 w-full max-w-md mx-4 text-center relative z-10 login-animate-in">
     <!-- Logo -->
-    <div class="w-20 h-20 mx-auto mb-5 rounded-2xl overflow-hidden bg-white/10 backdrop-blur flex items-center justify-center shadow-2xl shadow-orange-500/20">
+    <div class="w-20 h-20 mx-auto mb-5 rounded-2xl overflow-hidden bg-white/10 backdrop-blur flex items-center justify-center shadow-2xl" style="box-shadow:0 20px 50px rgba(249,115,22,0.15)">
       <img src="logo.png" alt="育见欢喜" class="w-full h-full object-contain p-1">
     </div>
     <h1 class="text-white text-2xl font-bold mb-1 tracking-wide">欢喜城</h1>
@@ -199,7 +227,7 @@ if (typeof tailwind !== 'undefined') {
 
     <!-- 登录按钮 -->
     <button id="loginBtn" onclick="handleLogin()"
-      class="login-btn w-full py-3.5 rounded-xl text-white font-semibold text-sm tracking-wide shadow-lg shadow-orange-500/25">
+      class="login-btn w-full py-3.5 rounded-xl font-semibold text-sm tracking-wide" style="box-shadow:0 8px 25px rgba(249,115,22,0.2)">
       <span id="loginBtnText"><i class="fa fa-sign-in mr-2"></i>验证访问</span>
     </button>
 
@@ -217,151 +245,127 @@ if (typeof tailwind !== 'undefined') {
 <!-- ==================== 主应用内容 ==================== -->
 <div id="appContent" class="hidden">
 
-<!-- ==================== 侧边栏 ==================== -->
-<aside class="sidebar w-[220px] flex-shrink-0 flex flex-col text-white h-full z-20" style="background:#141414">
-  <!-- Logo -->
-  <div class="px-5 py-5">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
+<!-- ==================== 顶部导航栏 ==================== -->
+<header class="top-nav">
+  <div class="max-w-[1600px] mx-auto flex items-center h-14 px-6">
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-2.5 mr-8 flex-shrink-0" onclick="currentCategory='all';renderFiles();updateNavActive();">
+      <div class="w-7 h-7 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
         <img src="logo.png" alt="育见欢喜" class="w-full h-full object-contain p-0.5">
       </div>
-      <div>
-        <h1 class="text-sm font-semibold tracking-wide">欢喜城</h1>
-        <p class="text-[10px] text-white/30 tracking-wider">育见欢喜</p>
-      </div>
-    </div>
-  </div>
+      <span class="text-sm font-semibold text-gray-800">欢喜城</span>
+    </a>
 
-  <!-- 导航菜单 -->
-  <nav class="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
-    <p class="px-3 pt-3 pb-2 text-[10px] font-medium text-white/20 uppercase tracking-widest">浏览</p>
-    <a href="#" class="category-item active flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="all">
-      <i class="fa fa-th-large w-4 text-center text-white/30"></i> 全部文件
-      <span class="ml-auto badge">48</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="doc">
-      <i class="fa fa-file-text-o w-4 text-center text-white/20"></i> Word 文档
-      <span class="ml-auto badge">10</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="xls">
-      <i class="fa fa-table w-4 text-center text-white/20"></i> Excel 表格
-      <span class="ml-auto badge">8</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="ppt">
-      <i class="fa fa-pie-chart w-4 text-center text-white/20"></i> PPT 演示
-      <span class="ml-auto badge">8</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="pdf">
-      <i class="fa fa-file-pdf-o w-4 text-center text-white/20"></i> PDF 资料
-      <span class="ml-auto badge">7</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="img">
-      <i class="fa fa-file-image-o w-4 text-center text-white/20"></i> 图片素材
-      <span class="ml-auto badge">10</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="zip">
-      <i class="fa fa-file-archive-o w-4 text-center text-white/20"></i> 压缩包
-      <span class="ml-auto badge">5</span>
-    </a>
-  </nav>
+    <!-- 分类导航标签 -->
+    <nav class="flex items-center flex-1 overflow-x-auto" id="topNav">
+      <a href="#" class="nav-tab active" data-category="all">全部<span class="badge">54</span></a>
+      <a href="#" class="nav-tab" data-category="doc">Word<span class="badge">10</span></a>
+      <a href="#" class="nav-tab" data-category="xls">Excel<span class="badge">8</span></a>
+      <a href="#" class="nav-tab" data-category="ppt">PPT<span class="badge">8</span></a>
+      <a href="#" class="nav-tab" data-category="pdf">PDF<span class="badge">7</span></a>
+      <a href="#" class="nav-tab" data-category="img">图片<span class="badge">10</span></a>
+      <a href="#" class="nav-tab" data-category="zip">压缩包<span class="badge">5</span></a>
+      <a href="#" class="nav-tab" data-category="video">视频<span class="badge">6</span></a>
+    </nav>
 
-  <!-- 底部存储信息 -->
-  <div class="px-4 py-4 border-t border-white/5">
-    <div class="text-[10px] text-white/25 mb-2">存储空间</div>
-    <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-      <div class="h-full bg-white/20 rounded-full" style="width:4.7%"></div>
-    </div>
-    <div class="text-[10px] text-white/20 mt-1.5">23.7 / 500 GB</div>
-  </div>
-</aside>
-
-<!-- ==================== 主内容区 ==================== -->
-<main class="flex-1 flex flex-col h-full overflow-hidden bg-white">
-  <!-- 顶部栏 -->
-  <header class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-100 z-10">
-    <div class="flex items-center gap-6">
-      <button class="text-gray-400 hover:text-gray-600 lg:hidden" onclick="document.querySelector('.sidebar').classList.toggle('-translate-x-full')">
-        <i class="fa fa-bars text-base"></i>
-      </button>
+    <!-- 右侧操作 -->
+    <div class="flex items-center gap-3 ml-6 flex-shrink-0">
       <div class="relative">
         <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
         <input type="text" id="searchInput" placeholder="搜索文件..."
-          class="w-64 pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-200 focus:bg-white transition-all">
+          class="search-input w-52 pl-9 pr-4 py-2 rounded-lg text-sm">
       </div>
-    </div>
-    <div class="flex items-center gap-3">
-      <button onclick="openUploadModal()" class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-300 transition-all font-medium">
+      <button onclick="openUploadModal()" class="btn-outline flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg font-medium">
         <i class="fa fa-cloud-upload"></i> 上传
       </button>
-      <div class="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 font-medium text-xs cursor-pointer" title="管理员">管</div>
+      <div class="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 font-medium text-xs cursor-pointer flex-shrink-0" title="管理员">管</div>
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- 滚动内容区 -->
-  <div class="flex-1 overflow-y-auto px-6 py-6">
+<!-- ==================== 主内容区 ==================== -->
+<main class="max-w-[1600px] mx-auto px-6 py-6">
 
-    <!-- 统计信息 -->
-    <div class="flex items-center gap-2 text-[13px] text-gray-400 mb-6">
+  <!-- 次级分类标签栏 (新片场风格) -->
+  <div class="flex items-center gap-2 mb-6 overflow-x-auto pb-1" id="subNav">
+    <span class="text-xs text-gray-400 mr-1 flex-shrink-0"><i class="fa fa-star text-orange-400 mr-1"></i>编辑精选</span>
+    <a href="#" class="sub-nav-tag active" data-sub="all">全部</a>
+    <a href="#" class="sub-nav-tag" data-sub="doc">Word 文档</a>
+    <a href="#" class="sub-nav-tag" data-sub="xls">Excel 表格</a>
+    <a href="#" class="sub-nav-tag" data-sub="ppt">PPT 演示</a>
+    <a href="#" class="sub-nav-tag" data-sub="pdf">PDF 资料</a>
+    <a href="#" class="sub-nav-tag" data-sub="img">图片素材</a>
+    <a href="#" class="sub-nav-tag" data-sub="zip">压缩包</a>
+    <a href="#" class="sub-nav-tag" data-sub="video">视频</a>
+  </div>
+
+  <!-- 内容标签切换 (新片场风格: 关注|推荐|榜单|精选|手记) -->
+  <div class="flex items-center gap-6 mb-6 border-b border-gray-100">
+    <a href="#" class="content-tab active" data-sort="newest">最新上传</a>
+    <a href="#" class="content-tab" data-sort="downloads">最多下载</a>
+    <a href="#" class="content-tab" data-sort="featured">精选推荐</a>
+  </div>
+
+  <!-- 统计信息 + 工具栏 -->
+  <div class="flex items-center justify-between mb-5">
+    <div class="flex items-center gap-2 text-[13px] text-gray-400">
       <span class="text-gray-800 font-semibold" id="sectionTitle">全部文件</span>
       <span class="text-gray-300">·</span>
-      <span id="fileCount">48 个文件</span>
+      <span id="fileCount">54 个文件</span>
     </div>
-
-    <!-- 工具栏 -->
-    <div class="flex items-center justify-between mb-5">
-      <div></div>
-      <div class="flex items-center gap-2">
-        <select id="sortSelect" class="text-[13px] bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-gray-500 focus:outline-none focus:border-gray-300 cursor-pointer">
-          <option value="newest">最新上传</option>
-          <option value="oldest">最早上传</option>
-          <option value="name">名称排序</option>
-          <option value="size">文件大小</option>
-        </select>
-        <div class="flex bg-gray-100 rounded-lg p-0.5">
-          <button class="view-btn active px-2.5 py-1.5 rounded-md text-[13px] transition-all" data-view="grid" onclick="setView('grid')">
-            <i class="fa fa-th"></i>
-          </button>
-          <button class="view-btn px-2.5 py-1.5 rounded-md text-[13px] transition-all" data-view="list" onclick="setView('list')">
-            <i class="fa fa-list"></i>
-          </button>
-        </div>
+    <div class="flex items-center gap-3">
+      <div class="flex bg-gray-100 rounded-lg p-0.5">
+        <button class="view-btn active px-2.5 py-1.5 rounded-md text-[13px] transition-all" data-view="grid" onclick="setView('grid')">
+          <i class="fa fa-th"></i>
+        </button>
+        <button class="view-btn px-2.5 py-1.5 rounded-md text-[13px] transition-all" data-view="list" onclick="setView('list')">
+          <i class="fa fa-list"></i>
+        </button>
       </div>
     </div>
-
-    <!-- 文件网格 -->
-    <div id="fileGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-    </div>
-
-    <!-- 空状态 -->
-    <div id="emptyState" class="hidden text-center py-20">
-      <div class="text-gray-300 mb-3 font-medium">暂无文件</div>
-      <p class="text-sm text-gray-400">没有找到匹配的文件</p>
-    </div>
-
   </div>
-</main><!-- ==================== 上传弹窗 ==================== -->
+
+  <!-- 存储空间条 -->
+  <div class="mb-6 flex items-center gap-3 text-xs text-gray-400">
+    <span>存储空间</span>
+    <div class="flex-1 max-w-[200px] h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div class="h-full bg-orange-400 rounded-full" style="width:4.7%"></div>
+    </div>
+    <span>23.7 / 500 GB</span>
+  </div>
+
+  <!-- 文件网格 -->
+  <div id="fileGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+  </div>
+
+  <!-- 空状态 -->
+  <div id="emptyState" class="hidden text-center py-20">
+    <p class="text-gray-400 text-sm">没有找到匹配的文件</p>
+  </div>
+
+</main>
+
+<!-- ==================== 上传弹窗 ==================== -->
 <div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
   <div class="modal-overlay absolute inset-0" onclick="closeUploadModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl animate-in z-10">
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-      <h3 class="text-lg font-bold text-gray-800">
-        <i class="fa fa-cloud-upload text-orange-500 mr-2"></i>上传文件
-      </h3>
+      <h3 class="text-lg font-bold text-gray-800">上传文件</h3>
       <button onclick="closeUploadModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa fa-times"></i></button>
     </div>
     <div class="p-6">
-      <div class="upload-zone rounded-2xl p-10 text-center cursor-pointer" id="dropZone">
-        <div class="text-5xl mb-3">📁</div>
+      <div class="upload-zone p-10 text-center cursor-pointer" id="dropZone">
+        <i class="fa fa-cloud-upload text-gray-300 text-4xl mb-3 block"></i>
         <p class="text-gray-700 font-medium mb-1">拖拽文件到此处上传</p>
-        <p class="text-xs text-gray-400 mb-4">支持 Word、Excel、PPT、PDF、图片、压缩包等格式</p>
-        <button class="btn-primary text-white text-sm px-6 py-2.5 rounded-xl font-medium">
+        <p class="text-xs text-gray-400 mb-4">支持 Word、Excel、PPT、PDF、图片、视频、压缩包等格式</p>
+        <button class="btn-primary text-sm px-6 py-2.5 rounded-lg font-medium">
           <i class="fa fa-folder-open mr-1.5"></i> 选择文件
         </button>
-        <p class="text-[10px] text-gray-400 mt-3">单个文件最大 200MB，图片将保持原始清晰度</p>
+        <p class="text-[10px] text-gray-400 mt-3">单个文件最大 200MB，图片/视频将保持原始清晰度</p>
       </div>
       <div class="mt-4 flex items-center gap-2 text-xs text-gray-400">
         <i class="fa fa-check-circle text-green-500"></i>
-        <span>图片上传不压缩，保持原始画质</span>
+        <span>图片/视频上传不压缩，保持原始画质和清晰度</span>
       </div>
     </div>
   </div>
@@ -370,7 +374,7 @@ if (typeof tailwind !== 'undefined') {
 <!-- ==================== 预览弹窗 ==================== -->
 <div id="previewModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
   <div class="modal-overlay absolute inset-0" onclick="closePreviewModal()"></div>
-  <div class="relative bg-white rounded-xl w-full max-w-2xl mx-4 shadow-lg animate-in z-10 max-h-[85vh] flex flex-col">
+  <div class="relative bg-white rounded-xl w-full max-w-3xl mx-4 shadow-2xl animate-in z-10 max-h-[90vh] flex flex-col">
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
       <h3 class="text-base font-semibold text-gray-800" id="previewTitle">文件预览</h3>
       <button onclick="closePreviewModal()" class="text-gray-300 hover:text-gray-500"><i class="fa fa-times"></i></button>
@@ -888,24 +892,21 @@ function showApp() {
   loginScreen.style.opacity = '0';
   loginScreen.style.transition = 'opacity 0.4s ease';
   appContent.classList.remove('hidden');
-  appContent.classList.add('flex', 'h-screen', 'overflow-hidden');
 
   // 管理员身份标记
   const isAdmin = sessionStorage.getItem('is_admin') === '1';
   const adminUser = sessionStorage.getItem('admin_user') || '';
   if (isAdmin) {
-    const avatar = document.querySelector('.w-9.h-9.rounded-full');
-    if (avatar) {
-      avatar.title = '管理员: ' + adminUser;
-      avatar.innerHTML = '<i class="fa fa-shield"></i>';
-      avatar.classList.add('bg-gradient-to-br', 'from-red-500', 'to-red-700');
+    var adminBadge = document.querySelector('.top-nav .w-7.h-7.rounded-md');
+    if (adminBadge) {
+      adminBadge.title = '管理员: ' + adminUser;
+      adminBadge.innerHTML = '<i class="fa fa-shield text-orange-500 text-xs"></i>';
     }
   }
 
   setTimeout(() => {
     loginScreen.remove();
     renderFiles();
-    document.querySelector('.category-item.active')?.classList.add('active');
   }, 400);
 }
 
@@ -970,6 +971,13 @@ const files = [
   { id:46, name:'培训资料包_新人必备',          ext:'zip',  cat:'zip', size:'28.4 MB',date:'2025-11-15', author:'HR',         downloads:512 },
   { id:47, name:'产品原型设计稿',               ext:'zip',  cat:'zip', size:'18.9 MB',date:'2025-10-25', author:'产品部',     downloads:189 },
   { id:48, name:'年货节活动素材包',             ext:'zip',  cat:'zip', size:'52.3 MB',date:'2025-10-10', author:'市场部',     downloads:378 },
+  // 视频
+  { id:49, name:'欢喜城品牌宣传片_导演剪辑版',   ext:'mp4',  cat:'video', size:'385.2 MB',date:'2025-12-22', author:'品牌部',   downloads:567 },
+  { id:50, name:'2025年会精彩回顾',             ext:'mp4',  cat:'video', size:'256.8 MB',date:'2025-12-18', author:'行政部',   downloads:892 },
+  { id:51, name:'产品发布会全程录像',           ext:'mov',  cat:'video', size:'1.2 GB',  date:'2025-11-30', author:'市场部',   downloads:445 },
+  { id:52, name:'员工培训系列_企业文化篇',       ext:'mp4',  cat:'video', size:'178.5 MB',date:'2025-11-20', author:'HR',       downloads:723 },
+  { id:53, name:'客户案例访谈_精选合集',         ext:'webm', cat:'video', size:'92.3 MB', date:'2025-10-15', author:'销售部',   downloads:334 },
+  { id:54, name:'育见欢喜日常vlog_秋日特辑',     ext:'mov',  cat:'video', size:'520.6 MB',date:'2025-10-08', author:'运营部',   downloads:201 },
 ];
 
 let currentCategory = 'all';
@@ -990,6 +998,11 @@ function getFileIcon(ext, cat) {
     webp: { icon:'fa-file-image-o', label:'图片' },
     zip:  { icon:'fa-file-archive-o', label:'压缩包' },
     rar:  { icon:'fa-file-archive-o', label:'压缩包' },
+    mp4:  { icon:'fa-file-video-o', label:'视频' },
+    mov:  { icon:'fa-file-video-o', label:'视频' },
+    avi:  { icon:'fa-file-video-o', label:'视频' },
+    webm: { icon:'fa-file-video-o', label:'视频' },
+    mkv:  { icon:'fa-file-video-o', label:'视频' },
   };
   return map[ext] || { icon:'fa-file-o', label:'文件' };
 }
@@ -1007,6 +1020,8 @@ function renderFiles() {
   else if (currentSort === 'oldest') filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
   else if (currentSort === 'name') filtered.sort((a,b) => a.name.localeCompare(b.name, 'zh'));
   else if (currentSort === 'size') filtered.sort((a,b) => parseFloat(b.size) - parseFloat(a.size));
+  else if (currentSort === 'downloads') filtered.sort((a,b) => (b.downloads||0) - (a.downloads||0));
+  else if (currentSort === 'featured') filtered.sort((a,b) => ((b.downloads||0)*0.7 + new Date(b.date).getTime()*0.3/86400000) - ((a.downloads||0)*0.7 + new Date(a.date).getTime()*0.3/86400000));
 
   const grid = document.getElementById('fileGrid');
   const empty = document.getElementById('emptyState');
@@ -1025,82 +1040,114 @@ function renderFiles() {
     grid.className = 'flex flex-col gap-0.5';
     grid.innerHTML = filtered.map((f, i) => {
       const fi = getFileIcon(f.ext, f.cat);
-      const iconClass = fi.icon;
-      return `      <div class="file-card bg-white px-4 py-3 border-b border-gray-50 flex items-center gap-4 hover:bg-gray-50/50 transition-colors" style="animation-delay:${i*0.02}s">
-        <i class="fa ${iconClass} text-gray-300 text-base w-5 text-center"></i>
-        <div class="flex-1 min-w-0">
-          <p class="text-[13px] text-gray-700 truncate font-medium">${f.name}.${f.ext}</p>
-          <p class="text-[11px] text-gray-400">${f.size} · ${f.author} · ${f.date}</p>
-        </div>
-        <span class="text-[10px] text-gray-400">${fi.label}</span>
-        <span class="text-[11px] text-gray-400"><i class="fa fa-download mr-1"></i>${f.downloads}</span>
-        <div class="flex gap-1">
-          <button onclick="event.stopPropagation();previewFile(${f.id})" class="text-xs text-gray-300 hover:text-gray-600 px-2 py-1" title="预览"><i class="fa fa-eye"></i></button>
-          <button onclick="event.stopPropagation();downloadFile(${f.id})" class="text-xs text-gray-300 hover:text-gray-600 px-2 py-1" title="下载"><i class="fa fa-download"></i></button>
-        </div>
-      </div>`;
+      return '<div class="file-card bg-white px-4 py-3 border-b border-gray-50 flex items-center gap-4 hover:bg-gray-50/50 transition-colors" style="animation-delay:' + (i*0.02) + 's;border-radius:0;border:none;border-bottom:1px solid #f5f5f5">' +
+        '<i class="fa ' + fi.icon + ' text-gray-300 text-base w-5 text-center"></i>' +
+        '<div class="flex-1 min-w-0">' +
+          '<p class="text-[13px] text-gray-700 truncate font-medium">' + f.name + '.' + f.ext + '</p>' +
+          '<p class="text-[11px] text-gray-400">' + f.size + ' · ' + f.author + ' · ' + f.date + '</p>' +
+        '</div>' +
+        '<span class="text-[10px] text-gray-400">' + fi.label + '</span>' +
+        '<span class="text-[11px] text-gray-400"><i class="fa fa-download mr-1"></i>' + f.downloads + '</span>' +
+        '<div class="flex gap-1">' +
+          '<button onclick="event.stopPropagation();previewFile(' + f.id + ')" class="text-xs text-gray-300 hover:text-gray-600 px-2 py-1" title="预览"><i class="fa fa-eye"></i></button>' +
+          '<button onclick="event.stopPropagation();downloadFile(' + f.id + ')" class="text-xs text-gray-300 hover:text-gray-600 px-2 py-1" title="下载"><i class="fa fa-download"></i></button>' +
+        '</div>' +
+      '</div>';
     }).join('');
   } else {
-    grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3';
+    grid.className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4';
     grid.innerHTML = filtered.map((f, i) => {
       const fi = getFileIcon(f.ext, f.cat);
-      const iconClass = fi.icon;
-      return `      <div class="file-card bg-white rounded-lg p-4 border border-gray-100 cursor-pointer animate-in hover:border-gray-200" style="animation-delay:${i*0.03}s" onclick="previewFile(${f.id})">
-        <div class="flex items-start justify-between mb-3">
-          <i class="fa ${iconClass} text-gray-300 text-xl"></i>
-          <span class="text-[10px] text-gray-400">${fi.label}</span>
-        </div>
-        <h4 class="text-[13px] font-medium text-gray-700 mb-1 truncate" title="${f.name}.${f.ext}">${f.name}</h4>
-        <p class="text-[11px] text-gray-400 mb-3">.${f.ext}</p>
-        <div class="flex items-center justify-between text-[11px] text-gray-400 border-t border-gray-50 pt-3">
-          <span>${f.size}</span>
-          <span>${f.date}</span>
-        </div>
-      </div>`;
+      const thumbClass = 'file-thumb-' + (f.cat || 'doc');
+      return '<div class="file-card animate-in" style="animation-delay:' + (i*0.03) + 's" onclick="previewFile(' + f.id + ')">' +
+        '<div class="file-thumb ' + thumbClass + '">' +
+          '<i class="fa ' + fi.icon + ' file-thumb-icon" style="font-size:48px"></i>' +
+          (f.cat === 'video' ? '<span class="thumb-duration"><i class="fa fa-play mr-1"></i>视频</span>' : '') +
+        '</div>' +
+        '<div class="p-3">' +
+          '<div class="flex items-center justify-between mb-1.5">' +
+            '<span class="text-[10px] text-gray-400">' + f.size + '</span>' +
+            '<span class="text-[10px] text-gray-400"><i class="fa fa-download mr-0.5"></i>' + f.downloads + '</span>' +
+          '</div>' +
+          '<h4 class="text-[13px] font-medium text-gray-800 leading-tight mb-2 line-clamp-2" title="' + f.name + '.' + f.ext + '">' + f.name + '</h4>' +
+          '<div class="flex items-center gap-2">' +
+            '<span class="category-tag">' + fi.label + '</span>' +
+            '<span class="text-[11px] text-gray-400">' + f.date + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }).join('');
   }
 }
 
 // ==================== 分类切换 ====================
-document.querySelectorAll('.category-item[data-category]').forEach(item => {
+function updateNavActive() {
+  document.querySelectorAll('#topNav .nav-tab').forEach(el => {
+    el.classList.remove('active');
+    if (el.dataset.category === currentCategory) el.classList.add('active');
+  });
+}
+document.querySelectorAll('#topNav .nav-tab').forEach(item => {
   item.addEventListener('click', function(e) {
     e.preventDefault();
-    document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
-    this.classList.add('active');
     currentCategory = this.dataset.category;
-    document.getElementById('sectionTitle').textContent = this.textContent.trim().split(/\s+/)[0];
+    updateNavActive();
+    // 同步次级导航
+    document.querySelectorAll('#subNav .sub-nav-tag').forEach(el => {
+      el.classList.remove('active');
+      if (el.dataset.sub === (currentCategory === 'all' ? 'all' : currentCategory)) el.classList.add('active');
+    });
+    var t = this.textContent.replace(/\d+/g,'').trim();
+    document.getElementById('sectionTitle').textContent = t || '全部文件';
     renderFiles();
   });
 });
 
-// 全部文件按钮
-document.querySelector('.category-item.active')?.addEventListener('click', function(e) {
-  e.preventDefault();
-  document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
-  this.classList.add('active');
-  currentCategory = 'all';
-  document.getElementById('sectionTitle').textContent = '全部文件';
-  renderFiles();
+// ==================== 次级导航 ====================
+document.querySelectorAll('#subNav .sub-nav-tag').forEach(item => {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('#subNav .sub-nav-tag').forEach(el => el.classList.remove('active'));
+    this.classList.add('active');
+    var sub = this.dataset.sub;
+    if (sub === 'all') {
+      currentCategory = 'all';
+      document.getElementById('sectionTitle').textContent = '全部文件';
+    } else {
+      currentCategory = sub;
+      document.getElementById('sectionTitle').textContent = this.textContent.trim();
+    }
+    // 同步顶部导航高亮
+    updateNavActive();
+    renderFiles();
+  });
+});
+
+// ==================== 内容标签切换 ====================
+document.querySelectorAll('.content-tab').forEach(item => {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.content-tab').forEach(el => el.classList.remove('active'));
+    this.classList.add('active');
+    currentSort = this.dataset.sort;
+    renderFiles();
+  });
 });
 
 // ==================== 搜索 ====================
 document.getElementById('searchInput').addEventListener('input', renderFiles);
 
-// ==================== 排序 ====================
-document.getElementById('sortSelect').addEventListener('change', function() {
-  currentSort = this.value;
-  renderFiles();
-});
+// ==================== 排序（保留兼容旧 sortSelect，虽然已移除） ====================
 
 // ==================== 视图切换 ====================
 function setView(view) {
   currentView = view;
   document.querySelectorAll('.view-btn').forEach(b => {
-    b.classList.remove('active', 'bg-white', 'shadow-sm', 'text-gray-700');
+    b.classList.remove('active', 'text-gray-800');
     b.classList.add('text-gray-400');
   });
-  const active = document.querySelector(`.view-btn[data-view="${view}"]`);
-  active.classList.add('active', 'bg-white', 'shadow-sm', 'text-gray-700');
+  const active = document.querySelector('.view-btn[data-view="' + view + '"]');
+  active.classList.add('active', 'text-gray-800');
   active.classList.remove('text-gray-400');
   renderFiles();
 }
@@ -1115,12 +1162,14 @@ function closeUploadModal() {
 
 function getFileCategory(mimeType, ext) {
   if (mimeType.startsWith('image/')) return 'img';
+  if (mimeType.startsWith('video/')) return 'video';
   const map = {
     docx: 'doc', doc: 'doc',
     xlsx: 'xls', xls: 'xls', csv: 'xls',
     pptx: 'ppt', ppt: 'ppt',
     pdf: 'pdf',
     zip: 'zip', rar: 'zip', '7z': 'zip', gz: 'zip',
+    mp4: 'video', mov: 'video', avi: 'video', webm: 'video', mkv: 'video',
   };
   return map[ext] || 'doc';
 }
@@ -1173,16 +1222,16 @@ function handleUploadedFiles(fileList) {
 function updateCategoryCounts() {
   const counts = {};
   files.forEach(f => { counts[f.cat] = (counts[f.cat] || 0) + 1; });
-  document.querySelectorAll('.category-item[data-category]').forEach(item => {
+  document.querySelectorAll('#topNav .nav-tab[data-category]').forEach(item => {
     const cat = item.dataset.category;
-    const badge = item.querySelector('span');
+    const badge = item.querySelector('.badge');
     if (badge && counts[cat] !== undefined) {
       badge.textContent = counts[cat];
     }
   });
-  // 更新总数
-  const totalBadge = document.querySelector('.category-item.active span');
-  if (totalBadge) totalBadge.textContent = files.length;
+  // 更新全部 badge
+  const allBadge = document.querySelector('#topNav .nav-tab[data-category="all"] .badge');
+  if (allBadge) allBadge.textContent = files.length;
 }
 
 const dropZone = document.getElementById('dropZone');
@@ -1213,45 +1262,27 @@ function previewFile(id) {
   const fi = getFileIcon(f.ext, f.cat);
   const content = document.getElementById('previewContent');
   const imgExts = ['png','jpg','jpeg','gif','webp','svg','bmp'];
+  const videoExts = ['mp4','mov','avi','webm','mkv'];
   const isImg = imgExts.includes(f.ext);
+  const isVideo = videoExts.includes(f.ext);
 
   const hasBlob = f._blob instanceof Blob || f._blob instanceof File;
-  const imgSrc = (hasBlob && f._blob.type.startsWith('image/'))
-    ? URL.createObjectURL(f._blob)
-    : null;
+  const blobUrl = hasBlob ? URL.createObjectURL(f._blob) : null;
+  const imgSrc = (hasBlob && f._blob.type.startsWith('image/')) ? blobUrl : null;
+  const videoSrc = (hasBlob && f._blob.type.startsWith('video/')) ? blobUrl : null;
 
-  content.innerHTML = `    <div class="text-center">
-      ${isImg ? `      <div class="rounded-lg mb-4 inline-block overflow-hidden">
-        ${imgSrc
-          ? `<img src="${imgSrc}" alt="${f.name}" class="max-w-full max-h-96 rounded-lg object-contain" onload="this.dataset.loaded='1'">`
-          : `<div class="w-64 h-48 mx-auto rounded-lg bg-gray-50 flex items-center justify-center">
-              <div class="text-center">
-                <i class="fa ${fi.icon} text-gray-300 text-5xl mb-2"></i>
-                <p class="text-sm text-gray-400">${f.name}.${f.ext}</p>
-              </div>
-            </div>`
-        }
-      </div>
-      ` : `
-      <div class="rounded-lg p-8 mb-4 inline-block">
-        <i class="fa ${fi.icon} text-gray-200 text-7xl"></i>
-      </div>
-      `}
-      <div class="bg-gray-50 rounded-lg p-4 mb-4 text-left max-w-sm mx-auto">
-        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">文件名</span><span class="text-gray-700 font-medium">${f.name}.${f.ext}</span></div>
-        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">类型</span><span class="text-gray-700">${fi.label} 文件</span></div>
-        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">大小</span><span class="text-gray-700">${f.size}</span></div>
-        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">上传者</span><span class="text-gray-700">${f.author}</span></div>
-        <div class="flex justify-between text-[13px]"><span class="text-gray-400">日期</span><span class="text-gray-700">${f.date}</span></div>
-        ${f.downloads > 0 ? `<div class="flex justify-between text-[13px] mt-1.5"><span class="text-gray-400">下载次数</span><span class="text-gray-700">${f.downloads}</span></div>` : ''}
-      </div>
-      <div class="flex justify-center gap-3">
-        <button onclick="downloadFile(${f.id});closePreviewModal()" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium">
-          <i class="fa fa-download mr-1.5"></i>下载${isImg ? '原图' : '文件'} (${f.size})
-        </button>
-        <button onclick="closePreviewModal()" class="text-sm px-5 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">关闭</button>
-      </div>
-    </div>`;
+  var mediaHtml = '';
+  if (isVideo) {
+    mediaHtml = '<div class=\"rounded-lg overflow-hidden mb-4 bg-black\"><video controls autoplay class=\"w-full max-h-[70vh] rounded-lg\" style=\"outline:none\" playsinline><source src=\"' + (videoSrc || '') + '\" type=\"video/' + (f.ext === 'mov' ? 'mp4' : f.ext) + '\">您的浏览器不支持视频播放</video><p class=\"text-center text-xs text-gray-400 mt-2\"><i class=\"fa fa-play-circle mr-1\"></i>原始清晰度在线播放</p></div>';
+  } else if (isImg) {
+    mediaHtml = '<div class=\"rounded-lg mb-4 inline-block overflow-hidden\">' + (imgSrc
+      ? '<img src=\"' + imgSrc + '\" alt=\"' + f.name + '\" class=\"max-w-full max-h-96 rounded-lg object-contain\" onload=\"this.dataset.loaded=\x271\x27\">'
+      : '<div class=\"w-64 h-48 mx-auto rounded-lg bg-gray-50 flex items-center justify-center\"><div class=\"text-center\"><i class=\"fa ' + fi.icon + ' text-gray-300 text-5xl mb-2\"></i><p class=\"text-sm text-gray-400\">' + f.name + '.' + f.ext + '</p></div></div>') + '</div>';
+  } else {
+    mediaHtml = '<div class=\"rounded-lg p-8 mb-4 inline-block\"><i class=\"fa ' + fi.icon + ' text-gray-200 text-7xl\"></i></div>';
+  }
+
+  content.innerHTML = '<div class=\"text-center\">' + mediaHtml + '<div class=\"bg-gray-50 rounded-lg p-4 mb-4 text-left max-w-sm mx-auto\"><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">文件名</span><span class=\"text-gray-700 font-medium\">' + f.name + '.' + f.ext + '</span></div><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">类型</span><span class=\"text-gray-700\">' + fi.label + ' 文件</span></div><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">大小</span><span class=\"text-gray-700\">' + f.size + '</span></div><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">上传者</span><span class=\"text-gray-700\">' + f.author + '</span></div><div class=\"flex justify-between text-[13px]\"><span class=\"text-gray-400\">日期</span><span class=\"text-gray-700\">' + f.date + '</span></div>' + (f.downloads > 0 ? '<div class=\"flex justify-between text-[13px] mt-1.5\"><span class=\"text-gray-400\">下载次数</span><span class=\"text-gray-700\">' + f.downloads + '</span></div>' : '') + '</div><div class=\"flex justify-center gap-3\"><button onclick=\"downloadFile(' + f.id + ');closePreviewModal()\" class=\"btn-primary text-sm px-5 py-2 rounded-lg font-medium\"><i class=\"fa fa-download mr-1.5\"></i>下载' + (isImg ? '原图' : isVideo ? '视频' : '文件') + ' (' + f.size + ')</button><button onclick=\"closePreviewModal()\" class=\"text-sm px-5 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50\">关闭</button></div></div>';
   document.getElementById('previewModal').classList.remove('hidden');
 }
 
