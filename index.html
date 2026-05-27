@@ -43,13 +43,13 @@
   .backdrop-blur{backdrop-filter:blur(20px)}
   .placeholder-white\/20::placeholder{color:rgba(255,255,255,.2)}
   /* 登录核心样式 */
-  .login-bg{background:linear-gradient(135deg,#1e293b,#0f172a,#1a1a2e,#16213e)}
-  .login-card{background:rgba(255,255,255,.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 25px 60px rgba(0,0,0,.4)}
-  .login-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);outline:none;transition:all .3s}
-  .login-input:focus{border-color:rgba(249,115,22,.5);box-shadow:0 0 0 3px rgba(249,115,22,.1)}
-  .login-btn{background:linear-gradient(135deg,#f97316,#ea580c);border:none;cursor:pointer;transition:all .3s}
-  .login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(249,115,22,.35)}
-  .login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .login-bg{background:#0d0d0d}
+  .login-card{background:rgba(255,255,255,.02);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.06);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+  .login-input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);outline:none;transition:all .2s}
+  .login-input:focus{border-color:rgba(255,255,255,.2);box-shadow:none}
+  .login-btn{background:#fff;color:#0d0d0d;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+  .login-btn:hover{background:#e5e5e5}
+  .login-btn:disabled{opacity:.4;cursor:not-allowed}
   .opacity-0{opacity:0}.opacity-70{opacity:.7}.opacity-85{opacity:.85}
   .z-10{z-index:10}.z-\[100\]{z-index:100}
   .shadow-orange-500\/20{box-shadow:0 4px 16px rgba(249,115,22,.2)}
@@ -92,99 +92,67 @@ if (typeof tailwind !== 'undefined') {
 </script>
 <style>
   * { font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif; }
-  body { background: #f1f5f9; }
+  body { background: #fafafa; }
   .sidebar { transition: transform 0.3s ease; }
-  .file-card { transition: all 0.25s ease; }
-  .file-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15); }
-  .gradient-header { background: linear-gradient(135deg, #f97316 0%, #ea580c 30%, #c2410c 70%, #9a3412 100%); }
-  .gradient-sidebar { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
-  .stat-card { transition: transform 0.2s ease; }
-  .stat-card:hover { transform: translateY(-2px); }
-  .btn-primary { background: linear-gradient(135deg, #f97316, #ea580c); transition: all 0.2s; }
-  .btn-primary:hover { background: linear-gradient(135deg, #fb923c, #f97316); box-shadow: 0 4px 16px rgba(249,115,22,0.35); }
-  .category-item { transition: all 0.2s; }
-  .category-item:hover, .category-item.active { background: rgba(249,115,22,0.15); color: #fb923c; border-left: 3px solid #f97316; }
-  .file-icon-word { color: #2563eb; }
-  .file-icon-excel { color: #16a34a; }
-  .file-icon-ppt { color: #dc2626; }
-  .file-icon-pdf { color: #ef4444; }
-  .file-icon-img { color: #a855f7; }
-  .file-icon-zip { color: #6366f1; }
-  .toggle-checkbox:checked ~ .dot { transform: translateX(100%); }
-  .toggle-checkbox:checked ~ .toggle-bg { background: #f97316; }
-  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .animate-in { animation: fadeInUp 0.5s ease forwards; }
-  .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-  .upload-zone { border: 2px dashed #cbd5e1; transition: all 0.3s; }
-  .upload-zone:hover, .upload-zone.drag-over { border-color: #f97316; background: rgba(249,115,22,0.05); }
-  ::-webkit-scrollbar { width: 6px; }
+  .file-card { transition: all 0.2s ease; cursor: pointer; }
+  .file-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .btn-primary { background: #1a1a1a; color: #fff; transition: all 0.2s; }
+  .btn-primary:hover { background: #333; }
+  .category-item { transition: all 0.15s; border-radius: 6px; }
+  .category-item:hover, .category-item.active { background: rgba(255,255,255,0.08); color: #fff; }
+  .category-item .badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+  .category-item.active .badge { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+  .file-icon-word { color: #94a3b8; }
+  .file-icon-excel { color: #94a3b8; }
+  .file-icon-ppt { color: #94a3b8; }
+  .file-icon-pdf { color: #94a3b8; }
+  .file-icon-img { color: #94a3b8; }
+  .file-icon-zip { color: #94a3b8; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeInUp 0.4s ease forwards; }
+  .modal-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); }
+  .upload-zone { border: 1px dashed #d1d5db; transition: all 0.2s; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: #1a1a1a; background: rgba(0,0,0,0.02); }
+  ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
   img { image-rendering: auto; }
+  .view-btn { color: #9ca3af; transition: all 0.15s; }
+  .view-btn.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
   /* ========== 登录页面样式 ========== */
-  .login-bg {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 40%, #1a1a2e 70%, #16213e 100%);
-    position: relative;
-    overflow: hidden;
-  }
+  .login-bg { background: #0d0d0d; position: relative; overflow: hidden; }
   .login-bg::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at 30% 50%, rgba(249,115,22,0.08) 0%, transparent 50%),
-                radial-gradient(circle at 70% 50%, rgba(234,88,12,0.06) 0%, transparent 50%),
-                radial-gradient(circle at 50% 80%, rgba(251,146,60,0.05) 0%, transparent 40%);
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(255,255,255,0.02) 0%, transparent 50%);
     animation: bgShift 20s ease-in-out infinite;
   }
-  @keyframes bgShift {
-    0%, 100% { transform: translate(0, 0); }
-    33% { transform: translate(1%, -1%); }
-    66% { transform: translate(-1%, 1%); }
-  }
+  @keyframes bgShift { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(1%, -1%); } 66% { transform: translate(-1%, 1%); } }
   .login-card {
-    background: rgba(255,255,255,0.03);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 25px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
   }
   .login-input {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    transition: all 0.3s;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: all 0.2s;
   }
   .login-input:focus {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(249,115,22,0.5);
-    box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: none;
     outline: none;
   }
-  .login-input.error {
-    border-color: rgba(239,68,68,0.6);
-    animation: shake 0.5s ease;
-  }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-5px); }
-    80% { transform: translateX(5px); }
-  }
-  .login-btn {
-    background: linear-gradient(135deg, #f97316, #ea580c);
-    transition: all 0.3s;
-  }
-  .login-btn:hover { background: linear-gradient(135deg, #fb923c, #f97316); box-shadow: 0 8px 25px rgba(249,115,22,0.35); transform: translateY(-1px); }
-  .login-btn:active { transform: translateY(0); }
-  .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  @keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  .login-animate-in { animation: fadeInScale 0.6s ease forwards; }
+  .login-input.error { border-color: rgba(239,68,68,0.4); animation: shake 0.5s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)} }
+  .login-btn { background: #fff; color: #0d0d0d; transition: all 0.2s; font-weight: 600; }
+  .login-btn:hover { background: #e5e5e5; }
+  .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  @keyframes fadeInScale { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+  .login-animate-in { animation: fadeInScale 0.5s ease forwards; }
   #particleCanvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 </style>
 </head>
@@ -250,175 +218,110 @@ if (typeof tailwind !== 'undefined') {
 <div id="appContent" class="hidden">
 
 <!-- ==================== 侧边栏 ==================== -->
-<aside class="sidebar gradient-sidebar w-64 flex-shrink-0 flex flex-col text-white h-full z-20 shadow-2xl">
+<aside class="sidebar w-[200px] flex-shrink-0 flex flex-col text-white h-full z-20" style="background:#141414">
   <!-- Logo -->
-  <div class="px-5 py-6 border-b border-white/10">
+  <div class="px-5 py-5">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl overflow-hidden bg-white/10 flex items-center justify-center shadow-lg shadow-orange-500/30">
+      <div class="w-8 h-8 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
         <img src="logo.png" alt="育见欢喜" class="w-full h-full object-contain p-0.5">
       </div>
       <div>
-        <h1 class="text-sm font-bold tracking-wide">欢喜城</h1>
-        <p class="text-[10px] text-white/50 tracking-wider">育见欢喜 · 官方资料站</p>
+        <h1 class="text-sm font-semibold tracking-wide">欢喜城</h1>
+        <p class="text-[10px] text-white/30 tracking-wider">育见欢喜</p>
       </div>
     </div>
   </div>
 
   <!-- 导航菜单 -->
-  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-    <p class="px-3 text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-3">主菜单</p>
-    <a href="#" class="category-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer">
-      <i class="fa fa-th-large w-5 text-center"></i> 全部文件
-      <span class="ml-auto bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">48</span>
+  <nav class="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+    <p class="px-3 pt-3 pb-2 text-[10px] font-medium text-white/20 uppercase tracking-widest">浏览</p>
+    <a href="#" class="category-item active flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="all">
+      <i class="fa fa-th-large w-4 text-center text-white/30"></i> 全部文件
+      <span class="ml-auto badge">48</span>
     </a>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer">
-      <i class="fa fa-star w-5 text-center text-yellow-400"></i> 常用收藏
-      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">12</span>
+    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="doc">
+      <i class="fa fa-file-text-o w-4 text-center text-white/20"></i> Word 文档
+      <span class="ml-auto badge">10</span>
     </a>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer">
-      <i class="fa fa-clock-o w-5 text-center"></i> 最近使用
+    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="xls">
+      <i class="fa fa-table w-4 text-center text-white/20"></i> Excel 表格
+      <span class="ml-auto badge">8</span>
     </a>
-
-    <p class="px-3 pt-5 text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-3">文件分类</p>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="doc">
-      <i class="fa fa-file-word-o w-5 text-center text-blue-400"></i> Word 文档
-      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">10</span>
+    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="ppt">
+      <i class="fa fa-pie-chart w-4 text-center text-white/20"></i> PPT 演示
+      <span class="ml-auto badge">8</span>
     </a>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="xls">
-      <i class="fa fa-file-excel-o w-5 text-center text-green-400"></i> Excel 表格
-      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">8</span>
+    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="pdf">
+      <i class="fa fa-file-pdf-o w-4 text-center text-white/20"></i> PDF 资料
+      <span class="ml-auto badge">7</span>
     </a>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="ppt">
-      <i class="fa fa-file-powerpoint-o w-5 text-center text-red-400"></i> PPT 演示
-      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">8</span>
+    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="img">
+      <i class="fa fa-file-image-o w-4 text-center text-white/20"></i> 图片素材
+      <span class="ml-auto badge">10</span>
     </a>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="pdf">
-      <i class="fa fa-file-pdf-o w-5 text-center text-red-300"></i> PDF 资料
-      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">7</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="img">
-      <i class="fa fa-file-image-o w-5 text-center text-purple-400"></i> 图片素材
-      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">10</span>
-    </a>
-    <a href="#" class="category-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 cursor-pointer" data-category="zip">
-      <i class="fa fa-file-archive-o w-5 text-center text-indigo-400"></i> 压缩包
-      <span class="ml-auto bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full">5</span>
+    <a href="#" class="category-item flex items-center gap-2.5 px-3 py-2 text-[13px] text-white/60 cursor-pointer" data-category="zip">
+      <i class="fa fa-file-archive-o w-4 text-center text-white/20"></i> 压缩包
+      <span class="ml-auto badge">5</span>
     </a>
   </nav>
 
   <!-- 底部存储信息 -->
-  <div class="px-4 py-4 border-t border-white/10">
-    <div class="text-[10px] text-white/40 mb-1.5">已使用存储空间</div>
-    <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-      <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width:4.7%"></div>
+  <div class="px-4 py-4 border-t border-white/5">
+    <div class="text-[10px] text-white/25 mb-2">存储空间</div>
+    <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+      <div class="h-full bg-white/20 rounded-full" style="width:4.7%"></div>
     </div>
-    <div class="text-[10px] text-white/40 mt-1.5">23.7 GB / 500 GB</div>
+    <div class="text-[10px] text-white/20 mt-1.5">23.7 / 500 GB</div>
   </div>
 </aside>
 
 <!-- ==================== 主内容区 ==================== -->
-<main class="flex-1 flex flex-col h-full overflow-hidden">
-
-  <!-- 顶部导航 -->
-  <header class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 z-10">
-    <div class="flex items-center gap-4">
-      <button class="text-gray-500 hover:text-gray-700 lg:hidden" onclick="document.querySelector('.sidebar').classList.toggle('-translate-x-full')">
-        <i class="fa fa-bars text-lg"></i>
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-white">
+  <!-- 顶部栏 -->
+  <header class="flex items-center justify-between px-8 py-3 bg-white border-b border-gray-100 z-10">
+    <div class="flex items-center gap-6">
+      <button class="text-gray-400 hover:text-gray-600 lg:hidden" onclick="document.querySelector('.sidebar').classList.toggle('-translate-x-full')">
+        <i class="fa fa-bars text-base"></i>
       </button>
       <div class="relative">
-        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-        <input type="text" id="searchInput" placeholder="搜索文件名称..."
-          class="w-72 pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white transition-all">
+        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
+        <input type="text" id="searchInput" placeholder="搜索文件..."
+          class="w-64 pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-200 focus:bg-white transition-all">
       </div>
     </div>
     <div class="flex items-center gap-3">
-      <button onclick="openUploadModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-xl font-medium shadow-lg shadow-orange-500/20">
-        <i class="fa fa-cloud-upload mr-1.5"></i> 上传文件
+      <button onclick="openUploadModal()" class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-300 transition-all font-medium">
+        <i class="fa fa-cloud-upload"></i> 上传
       </button>
-      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-sm shadow-md cursor-pointer" title="管理员">
-        管
-      </div>
+      <div class="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 font-medium text-xs cursor-pointer" title="管理员">管</div>
     </div>
   </header>
 
   <!-- 滚动内容区 -->
-  <div class="flex-1 overflow-y-auto px-6 py-6">
+  <div class="flex-1 overflow-y-auto px-8 py-6">
 
-    <!-- 欢迎横幅 -->
-    <div class="gradient-header rounded-2xl p-6 mb-6 text-white shadow-xl shadow-orange-500/15 animate-in" style="animation-delay: 0.05s">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-bold mb-1">欢迎回来 👋</h2>
-          <p class="text-white/70 text-sm">欢喜城 · 育见欢喜官方资料站 — 公司所有文件资源统一管理，高效协作从此开始。</p>
-        </div>
-        <div class="hidden md:flex items-center gap-2 bg-white/15 rounded-xl px-4 py-3">
-          <i class="fa fa-folder-open text-2xl text-orange-200"></i>
-          <div>
-            <div class="text-2xl font-bold">48</div>
-            <div class="text-[10px] text-white/60">资源文件</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 统计卡片 -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.1s">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-          <i class="fa fa-file-word-o text-blue-500 text-xl"></i>
-        </div>
-        <div>
-          <div class="text-lg font-bold text-gray-800">10</div>
-          <div class="text-[11px] text-gray-400">Word 文档</div>
-        </div>
-      </div>
-      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.15s">
-        <div class="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
-          <i class="fa fa-file-excel-o text-green-500 text-xl"></i>
-        </div>
-        <div>
-          <div class="text-lg font-bold text-gray-800">8</div>
-          <div class="text-[11px] text-gray-400">Excel 表格</div>
-        </div>
-      </div>
-      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.2s">
-        <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-          <i class="fa fa-file-powerpoint-o text-red-500 text-xl"></i>
-        </div>
-        <div>
-          <div class="text-lg font-bold text-gray-800">8</div>
-          <div class="text-[11px] text-gray-400">PPT 演示</div>
-        </div>
-      </div>
-      <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-in flex items-center gap-3" style="animation-delay: 0.25s">
-        <div class="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
-          <i class="fa fa-file-image-o text-purple-500 text-xl"></i>
-        </div>
-        <div>
-          <div class="text-lg font-bold text-gray-800">10</div>
-          <div class="text-[11px] text-gray-400">图片素材</div>
-        </div>
-      </div>
+    <!-- 统计信息 -->
+    <div class="flex items-center gap-2 text-[13px] text-gray-400 mb-6">
+      <span class="text-gray-800 font-semibold" id="sectionTitle">全部文件</span>
+      <span class="text-gray-300">·</span>
+      <span id="fileCount">48 个文件</span>
     </div>
 
     <!-- 工具栏 -->
-    <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+    <div class="flex items-center justify-between mb-5">
+      <div></div>
       <div class="flex items-center gap-2">
-        <h3 class="text-base font-bold text-gray-800" id="sectionTitle">全部文件</h3>
-        <span class="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded-full" id="fileCount">48 个文件</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <select id="sortSelect" class="text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer">
+        <select id="sortSelect" class="text-[13px] bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-gray-500 focus:outline-none focus:border-gray-300 cursor-pointer">
           <option value="newest">最新上传</option>
           <option value="oldest">最早上传</option>
           <option value="name">名称排序</option>
           <option value="size">文件大小</option>
         </select>
-        <div class="flex bg-gray-100 rounded-lg p-1">
-          <button class="view-btn active px-3 py-1.5 rounded-md text-sm transition-all" data-view="grid" onclick="setView('grid')">
+        <div class="flex bg-gray-100 rounded-lg p-0.5">
+          <button class="view-btn active px-2.5 py-1.5 rounded-md text-[13px] transition-all" data-view="grid" onclick="setView('grid')">
             <i class="fa fa-th"></i>
           </button>
-          <button class="view-btn px-3 py-1.5 rounded-md text-sm text-gray-400 transition-all" data-view="list" onclick="setView('list')">
+          <button class="view-btn px-2.5 py-1.5 rounded-md text-[13px] transition-all" data-view="list" onclick="setView('list')">
             <i class="fa fa-list"></i>
           </button>
         </div>
@@ -426,28 +329,17 @@ if (typeof tailwind !== 'undefined') {
     </div>
 
     <!-- 文件网格 -->
-    <div id="fileGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <!-- JS 动态填充 -->
+    <div id="fileGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
     </div>
 
     <!-- 空状态 -->
     <div id="emptyState" class="hidden text-center py-20">
-      <div class="text-6xl mb-4">📭</div>
-      <h3 class="text-lg font-bold text-gray-500 mb-1">没有找到匹配的文件</h3>
-      <p class="text-sm text-gray-400">试试调整搜索条件或换个关键词</p>
-    </div>
-
-    <!-- 加载更多 -->
-    <div class="text-center mt-8 pb-6">
-      <button class="text-sm text-orange-500 hover:text-orange-600 font-medium px-6 py-2.5 rounded-xl border border-orange-200 hover:bg-orange-50 transition-all">
-        <i class="fa fa-refresh mr-1"></i> 加载更多
-      </button>
+      <div class="text-gray-300 mb-3 font-medium">暂无文件</div>
+      <p class="text-sm text-gray-400">没有找到匹配的文件</p>
     </div>
 
   </div>
-</main>
-
-<!-- ==================== 上传弹窗 ==================== -->
+</main><!-- ==================== 上传弹窗 ==================== -->
 <div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
   <div class="modal-overlay absolute inset-0" onclick="closeUploadModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl animate-in z-10">
@@ -478,19 +370,19 @@ if (typeof tailwind !== 'undefined') {
 <!-- ==================== 预览弹窗 ==================== -->
 <div id="previewModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
   <div class="modal-overlay absolute inset-0" onclick="closePreviewModal()"></div>
-  <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 shadow-2xl animate-in z-10">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-      <h3 class="text-lg font-bold text-gray-800" id="previewTitle">文件预览</h3>
-      <button onclick="closePreviewModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa fa-times"></i></button>
+  <div class="relative bg-white rounded-xl w-full max-w-2xl mx-4 shadow-lg animate-in z-10 max-h-[85vh] flex flex-col">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+      <h3 class="text-base font-semibold text-gray-800" id="previewTitle">文件预览</h3>
+      <button onclick="closePreviewModal()" class="text-gray-300 hover:text-gray-500"><i class="fa fa-times"></i></button>
     </div>
-    <div class="p-6" id="previewContent"></div>
+    <div class="p-6 overflow-y-auto" id="previewContent"></div>
   </div>
 </div>
 
 <!-- ==================== Toast 提示 ==================== -->
 <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden">
-  <div class="bg-gray-900 text-white text-sm px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2">
-    <i class="fa fa-check-circle text-green-400"></i>
+  <div class="bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-lg shadow-lg flex items-center gap-2">
+    <i class="fa fa-check-circle text-gray-400"></i>
     <span id="toastMsg">操作成功</span>
   </div>
 </div>
@@ -1087,19 +979,19 @@ let currentSort = 'newest';
 // ==================== 图标映射 ====================
 function getFileIcon(ext, cat) {
   const map = {
-    docx: { icon:'fa-file-word-o', cls:'file-icon-word', bg:'bg-blue-50', label:'Word' },
-    xlsx: { icon:'fa-file-excel-o', cls:'file-icon-excel', bg:'bg-green-50', label:'Excel' },
-    pptx: { icon:'fa-file-powerpoint-o', cls:'file-icon-ppt', bg:'bg-red-50', label:'PPT' },
-    pdf:  { icon:'fa-file-pdf-o', cls:'file-icon-pdf', bg:'bg-red-50', label:'PDF' },
-    png:  { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
-    jpg:  { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
-    jpeg: { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
-    gif:  { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
-    webp: { icon:'fa-file-image-o', cls:'file-icon-img', bg:'bg-purple-50', label:'图片' },
-    zip:  { icon:'fa-file-archive-o', cls:'file-icon-zip', bg:'bg-indigo-50', label:'压缩包' },
-    rar:  { icon:'fa-file-archive-o', cls:'file-icon-zip', bg:'bg-indigo-50', label:'压缩包' },
+    docx: { icon:'fa-file-text-o', label:'Word' },
+    xlsx: { icon:'fa-table', label:'Excel' },
+    pptx: { icon:'fa-pie-chart', label:'PPT' },
+    pdf:  { icon:'fa-file-pdf-o', label:'PDF' },
+    png:  { icon:'fa-file-image-o', label:'图片' },
+    jpg:  { icon:'fa-file-image-o', label:'图片' },
+    jpeg: { icon:'fa-file-image-o', label:'图片' },
+    gif:  { icon:'fa-file-image-o', label:'图片' },
+    webp: { icon:'fa-file-image-o', label:'图片' },
+    zip:  { icon:'fa-file-archive-o', label:'压缩包' },
+    rar:  { icon:'fa-file-archive-o', label:'压缩包' },
   };
-  return map[ext] || { icon:'fa-file-o', cls:'text-gray-400', bg:'bg-gray-50', label:'文件' };
+  return map[ext] || { icon:'fa-file-o', label:'文件' };
 }
 
 // ==================== 渲染文件 ====================
@@ -1130,53 +1022,39 @@ function renderFiles() {
   empty.classList.add('hidden');
 
   if (currentView === 'list') {
-    grid.className = 'flex flex-col gap-2';
+    grid.className = 'flex flex-col gap-0.5';
     grid.innerHTML = filtered.map((f, i) => {
       const fi = getFileIcon(f.ext, f.cat);
-      return `
-      <div class="file-card bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 animate-in" style="animation-delay:${i*0.03}s">
-        <div class="w-11 h-11 rounded-xl ${fi.bg} flex items-center justify-center flex-shrink-0">
-          <i class="fa ${fi.icon} ${fi.cls} text-xl"></i>
-        </div>
+      const iconClass = fi.icon;
+      return `      <div class="file-card bg-white px-4 py-3 border-b border-gray-50 flex items-center gap-4 hover:bg-gray-50/50 transition-colors" style="animation-delay:${i*0.02}s">
+        <i class="fa ${iconClass} text-gray-300 text-base w-5 text-center"></i>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-gray-800 truncate">${f.name}.${f.ext}</p>
+          <p class="text-[13px] text-gray-700 truncate font-medium">${f.name}.${f.ext}</p>
           <p class="text-[11px] text-gray-400">${f.size} · ${f.author} · ${f.date}</p>
         </div>
-        <span class="text-[10px] font-medium text-white bg-gray-700 px-2 py-0.5 rounded-full">${fi.label}</span>
+        <span class="text-[10px] text-gray-400">${fi.label}</span>
         <span class="text-[11px] text-gray-400"><i class="fa fa-download mr-1"></i>${f.downloads}</span>
-        <div class="flex gap-2">
-          <button onclick="previewFile(${f.id})" class="text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1" title="预览"><i class="fa fa-eye"></i></button>
-          <button onclick="downloadFile(${f.id})" class="text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1" title="下载"><i class="fa fa-download"></i></button>
-          <button class="text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1" title="更多"><i class="fa fa-ellipsis-v"></i></button>
+        <div class="flex gap-1">
+          <button onclick="event.stopPropagation();previewFile(${f.id})" class="text-xs text-gray-300 hover:text-gray-600 px-2 py-1" title="预览"><i class="fa fa-eye"></i></button>
+          <button onclick="event.stopPropagation();downloadFile(${f.id})" class="text-xs text-gray-300 hover:text-gray-600 px-2 py-1" title="下载"><i class="fa fa-download"></i></button>
         </div>
       </div>`;
     }).join('');
   } else {
-    grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+    grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3';
     grid.innerHTML = filtered.map((f, i) => {
       const fi = getFileIcon(f.ext, f.cat);
-      return `
-      <div class="file-card bg-white rounded-xl p-5 shadow-sm border border-gray-100 group cursor-pointer animate-in" style="animation-delay:${i*0.04}s" onclick="previewFile(${f.id})">
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-12 h-12 rounded-2xl ${fi.bg} flex items-center justify-center">
-            <i class="fa ${fi.icon} ${fi.cls} text-2xl"></i>
-          </div>
-          <span class="text-[10px] font-medium text-white bg-gray-700 px-2 py-0.5 rounded-full">${fi.label}</span>
+      const iconClass = fi.icon;
+      return `      <div class="file-card bg-white rounded-lg p-4 border border-gray-100 cursor-pointer animate-in hover:border-gray-200" style="animation-delay:${i*0.03}s" onclick="previewFile(${f.id})">
+        <div class="flex items-start justify-between mb-3">
+          <i class="fa ${iconClass} text-gray-300 text-xl"></i>
+          <span class="text-[10px] text-gray-400">${fi.label}</span>
         </div>
-        <h4 class="text-sm font-semibold text-gray-800 mb-1 truncate" title="${f.name}.${f.ext}">${f.name}</h4>
+        <h4 class="text-[13px] font-medium text-gray-700 mb-1 truncate" title="${f.name}.${f.ext}">${f.name}</h4>
         <p class="text-[11px] text-gray-400 mb-3">.${f.ext}</p>
         <div class="flex items-center justify-between text-[11px] text-gray-400 border-t border-gray-50 pt-3">
           <span>${f.size}</span>
           <span>${f.date}</span>
-        </div>
-        <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-50">
-          <span class="text-[11px] text-gray-400"><i class="fa fa-user-circle-o mr-1"></i>${f.author}</span>
-          <span class="text-[11px] text-gray-400"><i class="fa fa-download mr-1"></i>${f.downloads}</span>
-        </div>
-        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-          <button onclick="event.stopPropagation();downloadFile(${f.id})" class="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs hover:bg-orange-600 shadow-md" title="下载">
-            <i class="fa fa-download"></i>
-          </button>
         </div>
       </div>`;
     }).join('');
@@ -1337,45 +1215,41 @@ function previewFile(id) {
   const imgExts = ['png','jpg','jpeg','gif','webp','svg','bmp'];
   const isImg = imgExts.includes(f.ext);
 
-  // 如果是真实上传的图片，可以预览
   const hasBlob = f._blob instanceof Blob || f._blob instanceof File;
   const imgSrc = (hasBlob && f._blob.type.startsWith('image/'))
     ? URL.createObjectURL(f._blob)
     : null;
 
-  content.innerHTML = `
-    <div class="text-center">
-      ${isImg ? `
-      <div class="bg-gray-50 rounded-xl p-6 mb-4 inline-block">
+  content.innerHTML = `    <div class="text-center">
+      ${isImg ? `      <div class="rounded-lg mb-4 inline-block overflow-hidden">
         ${imgSrc
-          ? `<img src="${imgSrc}" alt="${f.name}" class="max-w-full max-h-80 rounded-lg object-contain" style="image-rendering:auto" onload="this.dataset.loaded='1'">`
-          : `<div class="w-64 h-48 mx-auto rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+          ? `<img src="${imgSrc}" alt="${f.name}" class="max-w-full max-h-96 rounded-lg object-contain" onload="this.dataset.loaded='1'">`
+          : `<div class="w-64 h-48 mx-auto rounded-lg bg-gray-50 flex items-center justify-center">
               <div class="text-center">
-                <i class="fa ${fi.icon} ${fi.cls} text-6xl mb-2"></i>
+                <i class="fa ${fi.icon} text-gray-300 text-5xl mb-2"></i>
                 <p class="text-sm text-gray-400">${f.name}.${f.ext}</p>
               </div>
             </div>`
         }
       </div>
-      <p class="text-xs text-orange-500 mb-3"><i class="fa fa-check-circle mr-1"></i>图片保持原始清晰度，未做压缩处理</p>
       ` : `
-      <div class="bg-gray-50 rounded-xl p-8 mb-4 inline-block">
-        <i class="fa ${fi.icon} ${fi.cls} text-8xl"></i>
+      <div class="rounded-lg p-8 mb-4 inline-block">
+        <i class="fa ${fi.icon} text-gray-200 text-7xl"></i>
       </div>
       `}
-      <div class="bg-gray-100 rounded-xl p-4 mb-4 text-left max-w-sm mx-auto">
-        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">文件名</span><span class="text-gray-800 font-medium">${f.name}.${f.ext}</span></div>
-        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">类型</span><span class="text-gray-800">${fi.label} 文件</span></div>
-        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">大小</span><span class="text-gray-800">${f.size}</span></div>
-        <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">上传者</span><span class="text-gray-800">${f.author}</span></div>
-        <div class="flex justify-between text-xs"><span class="text-gray-500">日期</span><span class="text-gray-800">${f.date}</span></div>
-        ${f.downloads > 0 ? `<div class="flex justify-between text-xs mt-1"><span class="text-gray-500">下载次数</span><span class="text-gray-800">${f.downloads}</span></div>` : ''}
+      <div class="bg-gray-50 rounded-lg p-4 mb-4 text-left max-w-sm mx-auto">
+        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">文件名</span><span class="text-gray-700 font-medium">${f.name}.${f.ext}</span></div>
+        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">类型</span><span class="text-gray-700">${fi.label} 文件</span></div>
+        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">大小</span><span class="text-gray-700">${f.size}</span></div>
+        <div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">上传者</span><span class="text-gray-700">${f.author}</span></div>
+        <div class="flex justify-between text-[13px]"><span class="text-gray-400">日期</span><span class="text-gray-700">${f.date}</span></div>
+        ${f.downloads > 0 ? `<div class="flex justify-between text-[13px] mt-1.5"><span class="text-gray-400">下载次数</span><span class="text-gray-700">${f.downloads}</span></div>` : ''}
       </div>
       <div class="flex justify-center gap-3">
-        <button onclick="downloadFile(${f.id});closePreviewModal()" class="btn-primary text-white text-sm px-6 py-2.5 rounded-xl font-medium">
+        <button onclick="downloadFile(${f.id});closePreviewModal()" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium">
           <i class="fa fa-download mr-1.5"></i>下载${isImg ? '原图' : '文件'} (${f.size})
         </button>
-        <button onclick="closePreviewModal()" class="text-sm px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50">关闭</button>
+        <button onclick="closePreviewModal()" class="text-sm px-5 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">关闭</button>
       </div>
     </div>`;
   document.getElementById('previewModal').classList.remove('hidden');
