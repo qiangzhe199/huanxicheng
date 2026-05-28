@@ -1180,7 +1180,7 @@ function formatFileSize(bytes) {
 }
 
 // ==================== 文件封面自动生成 ====================
-function generateThumbnail(file, ext) {
+function generateThumbnail(file, ext, name) {
   ext = (ext || '').toLowerCase();
   return new Promise(function(resolve) {
     // === 图片 ===
@@ -1240,68 +1240,78 @@ function generateThumbnail(file, ext) {
       };
       video.onerror = function() { done(null); };
       video.src = url;
-    // === PDF：渲染首页 ===
+    // === PDF：Canvas 绘制封面（无需外部库） ===
     } else if (ext === 'pdf') {
-      loadPDFJS().then(function() {
-        if (!window.pdfjsLib) { resolve(null); return; }
-        file.arrayBuffer().then(function(ab) {
-          pdfjsLib.getDocument({data: ab}).promise.then(function(pdf) {
-            pdf.getPage(1).then(function(page) {
-              var scale = Math.min(320 / page.getViewport({scale:1}).width, 210 / page.getViewport({scale:1}).height, 0.5);
-              var vp = page.getViewport({scale: scale});
-              var canvas = document.createElement('canvas');
-              canvas.width = Math.round(vp.width);
-              canvas.height = Math.round(vp.height);
-              var ctx = canvas.getContext('2d');
-              page.render({canvasContext: ctx, viewport: vp}).promise.then(function() {
-                canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.75);
-              }).catch(function() { resolve(null); });
-            }).catch(function() { resolve(null); });
-          }).catch(function() { resolve(null); });
-        }).catch(function() { resolve(null); });
-      });
-    // === Word：提取文本生成封面 ===
-    } else if (ext === 'docx') {
-      loadMammoth().then(function() {
-        if (!window.mammoth) { resolve(null); return; }
-        try {
-          file.arrayBuffer().then(function(ab) {
-            mammoth.convertToHtml({arrayBuffer: ab}).then(function(result) {
-              var text = (result.value || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-              var canvas = document.createElement('canvas');
-              canvas.width = 320; canvas.height = 210;
-              var ctx = canvas.getContext('2d');
-              // 蓝色背景
-              ctx.fillStyle = '#185abd';
-              ctx.fillRect(0, 0, 320, 210);
-              // 文件标题（最多两行）
-              ctx.fillStyle = '#fff';
-              ctx.font = 'bold 15px "PingFang SC","Microsoft YaHei",sans-serif';
-              var title = text.substring(0, 80);
-              var line1 = title.substring(0, 18);
-              var line2 = title.length > 18 ? title.substring(18, 36) : '';
-              if (line2 && line2.length < 18) line2 += '...';
-              ctx.fillText(line1, 18, 55);
-              if (line2) ctx.fillText(line2, 18, 78);
-              // 分隔线
-              ctx.fillStyle = 'rgba(255,255,255,0.2)';
-              ctx.fillRect(18, 95, 60, 2);
-              // 文本预览
-              ctx.fillStyle = 'rgba(255,255,255,0.7)';
-              ctx.font = '12px "PingFang SC","Microsoft YaHei",sans-serif';
-              var bodyLines = text.substring(title.length).trim().match(/.{1,22}/g) || [];
-              for (var j = 0; j < Math.min(bodyLines.length, 3); j++) {
-                ctx.fillText(bodyLines[j], 18, 120 + j * 18);
-              }
-              // 底部标签
-              ctx.fillStyle = 'rgba(255,255,255,0.4)';
-              ctx.font = '10px "PingFang SC","Microsoft YaHei",sans-serif';
-              ctx.fillText('Word 文档', 18, 195);
-              canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.8);
-            }).catch(function() { resolve(null); });
-          }).catch(function() { resolve(null); });
-        } catch(e) { resolve(null); }
-      });
+      var canvas = document.createElement('canvas');
+      canvas.width = 320; canvas.height = 210;
+      var ctx = canvas.getContext('2d');
+      // 红色渐变背景
+      var g = ctx.createLinearGradient(0, 0, 320, 210);
+      g.addColorStop(0, '#ef4444');
+      g.addColorStop(1, '#b91c1c');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 320, 210);
+      // 装饰圆
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.beginPath(); ctx.arc(260, 50, 80, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(40, 170, 50, 0, Math.PI*2); ctx.fill();
+      // 大号 PDF 水印
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.font = 'bold 72px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('PDF', 18, 88);
+      // 文件名（单行截断）
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 13px "PingFang SC","Microsoft YaHei",sans-serif';
+      var label = (name || 'PDF 文件');
+      if (ctx.measureText(label).width > 284) {
+        while (label.length > 0 && ctx.measureText(label + '…').width > 284) label = label.slice(0, -1);
+        label += '…';
+      }
+      ctx.fillText(label, 18, 146);
+      // 分隔线
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(18, 156, 50, 1.5);
+      // 底部标签
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '10px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('PDF 文档', 18, 198);
+      canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.85);
+    // === Word：Canvas 绘制封面（无需外部库） ===
+    } else if (ext === 'docx' || ext === 'doc') {
+      var canvas = document.createElement('canvas');
+      canvas.width = 320; canvas.height = 210;
+      var ctx = canvas.getContext('2d');
+      // 蓝色渐变背景
+      var g = ctx.createLinearGradient(0, 0, 320, 210);
+      g.addColorStop(0, '#3b82f6');
+      g.addColorStop(1, '#1d4ed8');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 320, 210);
+      // 装饰圆
+      ctx.fillStyle = 'rgba(255,255,255,0.07)';
+      ctx.beginPath(); ctx.arc(270, 40, 70, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(30, 180, 40, 0, Math.PI*2); ctx.fill();
+      // 大号 Word 图标
+      ctx.fillStyle = 'rgba(255,255,255,0.13)';
+      ctx.font = 'bold 64px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('W', 18, 78);
+      // 文件名（单行截断）
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 13px "PingFang SC","Microsoft YaHei",sans-serif';
+      var label = (name || 'Word 文档');
+      if (ctx.measureText(label).width > 284) {
+        while (label.length > 0 && ctx.measureText(label + '…').width > 284) label = label.slice(0, -1);
+        label += '…';
+      }
+      ctx.fillText(label, 18, 146);
+      // 分隔线
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(18, 156, 50, 1.5);
+      // 底部标签
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '10px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText(ext === 'doc' ? 'Word 97-2003 文档' : 'Word 文档', 18, 198);
+      canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.85);
     } else {
       resolve(null);
     }
@@ -1320,7 +1330,7 @@ async function fillMissingThumbnails() {
   var count = 0;
   for (var i = 0; i < needThumb.length; i++) {
     var f = needThumb[i];
-    var thumb = await generateThumbnail(f._blob, f.ext);
+    var thumb = await generateThumbnail(f._blob, f.ext, f.name);
     if (thumb) {
       f._thumb = thumb;
       persistFile(f);
@@ -1375,7 +1385,7 @@ async function handleUploadedFiles(fileList) {
       var t = f._blob.type;
       var e = (f.ext || '').toLowerCase();
       if (t.startsWith('image/') || t.startsWith('video/') || e === 'pdf' || e === 'docx') {
-        var thumb = await generateThumbnail(f._blob, f.ext);
+        var thumb = await generateThumbnail(f._blob, f.ext, f.name);
         if (thumb) {
           f._thumb = thumb;
           persistFile(f);
