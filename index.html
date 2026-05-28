@@ -1465,7 +1465,7 @@ async function previewFile(id) {
   }
   // === Excel (xlsx/xls) ===
   else if (['xlsx','xls'].includes(ext) && hasBlob) {
-    downloadLabel = (ext === 'csv' ? 'CSV' : 'Excel');
+    downloadLabel = 'Excel';
     try {
       await loadXLSX();
       if (window.XLSX) {
