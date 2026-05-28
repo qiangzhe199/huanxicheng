@@ -845,8 +845,10 @@ function showApp() {
   setTimeout(() => {
     loginScreen.remove();
     // 先从 IndexedDB 加载持久化的上传文件，再渲染
-    loadPersistedFiles().then(() => {
+    loadPersistedFiles().then(function() {
       renderFiles();
+      // 后台补全旧文件的封面
+      fillMissingThumbnails();
     });
   }, 400);
 }
@@ -1207,6 +1209,29 @@ function generateThumbnail(file) {
       resolve(null);
     }
   });
+}
+
+// 补全旧文件缺失的封面（后台静默运行）
+async function fillMissingThumbnails() {
+  var needThumb = files.filter(function(f) {
+    return !f._thumb && f._blob instanceof Blob &&
+      (f._blob.type.startsWith('image/') || f._blob.type.startsWith('video/'));
+  });
+  if (needThumb.length === 0) return;
+  var count = 0;
+  for (var i = 0; i < needThumb.length; i++) {
+    var f = needThumb[i];
+    var thumb = await generateThumbnail(f._blob);
+    if (thumb) {
+      f._thumb = thumb;
+      persistFile(f);
+      count++;
+    }
+  }
+  if (count > 0) {
+    renderFiles();
+    showToast('已为 ' + count + ' 个文件自动生成封面');
+  }
 }
 
 async function handleUploadedFiles(fileList) {
