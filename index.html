@@ -618,6 +618,19 @@ if (typeof tailwind !== 'undefined') {
       document.head.appendChild(s);
     });
   }
+  function loadPDFJS() {
+    return new Promise(function(resolve) {
+      if (window.pdfjsLib) { resolve(); return; }
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+      s.onload = function() {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        resolve();
+      };
+      s.onerror = function() { resolve(); };
+      document.head.appendChild(s);
+    });
+  }
   function escapeHtml(str) {
     var div = document.createElement('div');
     div.textContent = str;
@@ -1157,8 +1170,10 @@ function formatFileSize(bytes) {
 }
 
 // ==================== 文件封面自动生成 ====================
-function generateThumbnail(file) {
+function generateThumbnail(file, ext) {
+  ext = (ext || '').toLowerCase();
   return new Promise(function(resolve) {
+    // === 图片 ===
     if (file.type.startsWith('image/')) {
       var img = new Image();
       var url = URL.createObjectURL(file);
@@ -1176,6 +1191,7 @@ function generateThumbnail(file) {
       };
       img.onerror = function() { URL.revokeObjectURL(url); resolve(null); };
       img.src = url;
+    // === 视频 ===
     } else if (file.type.startsWith('video/')) {
       var video = document.createElement('video');
       var url = URL.createObjectURL(file);
@@ -1214,6 +1230,68 @@ function generateThumbnail(file) {
       };
       video.onerror = function() { done(null); };
       video.src = url;
+    // === PDF：渲染首页 ===
+    } else if (ext === 'pdf') {
+      loadPDFJS().then(function() {
+        if (!window.pdfjsLib) { resolve(null); return; }
+        file.arrayBuffer().then(function(ab) {
+          pdfjsLib.getDocument({data: ab}).promise.then(function(pdf) {
+            pdf.getPage(1).then(function(page) {
+              var scale = Math.min(320 / page.getViewport({scale:1}).width, 210 / page.getViewport({scale:1}).height, 0.5);
+              var vp = page.getViewport({scale: scale});
+              var canvas = document.createElement('canvas');
+              canvas.width = Math.round(vp.width);
+              canvas.height = Math.round(vp.height);
+              var ctx = canvas.getContext('2d');
+              page.render({canvasContext: ctx, viewport: vp}).promise.then(function() {
+                canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.75);
+              }).catch(function() { resolve(null); });
+            }).catch(function() { resolve(null); });
+          }).catch(function() { resolve(null); });
+        }).catch(function() { resolve(null); });
+      });
+    // === Word：提取文本生成封面 ===
+    } else if (ext === 'docx') {
+      loadMammoth().then(function() {
+        if (!window.mammoth) { resolve(null); return; }
+        try {
+          file.arrayBuffer().then(function(ab) {
+            mammoth.convertToHtml({arrayBuffer: ab}).then(function(result) {
+              var text = (result.value || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+              var canvas = document.createElement('canvas');
+              canvas.width = 320; canvas.height = 210;
+              var ctx = canvas.getContext('2d');
+              // 蓝色背景
+              ctx.fillStyle = '#185abd';
+              ctx.fillRect(0, 0, 320, 210);
+              // 文件标题（最多两行）
+              ctx.fillStyle = '#fff';
+              ctx.font = 'bold 15px "PingFang SC","Microsoft YaHei",sans-serif';
+              var title = text.substring(0, 80);
+              var line1 = title.substring(0, 18);
+              var line2 = title.length > 18 ? title.substring(18, 36) : '';
+              if (line2 && line2.length < 18) line2 += '...';
+              ctx.fillText(line1, 18, 55);
+              if (line2) ctx.fillText(line2, 18, 78);
+              // 分隔线
+              ctx.fillStyle = 'rgba(255,255,255,0.2)';
+              ctx.fillRect(18, 95, 60, 2);
+              // 文本预览
+              ctx.fillStyle = 'rgba(255,255,255,0.7)';
+              ctx.font = '12px "PingFang SC","Microsoft YaHei",sans-serif';
+              var bodyLines = text.substring(title.length).trim().match(/.{1,22}/g) || [];
+              for (var j = 0; j < Math.min(bodyLines.length, 3); j++) {
+                ctx.fillText(bodyLines[j], 18, 120 + j * 18);
+              }
+              // 底部标签
+              ctx.fillStyle = 'rgba(255,255,255,0.4)';
+              ctx.font = '10px "PingFang SC","Microsoft YaHei",sans-serif';
+              ctx.fillText('Word 文档', 18, 195);
+              canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.8);
+            }).catch(function() { resolve(null); });
+          }).catch(function() { resolve(null); });
+        } catch(e) { resolve(null); }
+      });
     } else {
       resolve(null);
     }
@@ -1223,14 +1301,16 @@ function generateThumbnail(file) {
 // 补全旧文件缺失的封面（后台静默运行）
 async function fillMissingThumbnails() {
   var needThumb = files.filter(function(f) {
-    return !f._thumb && f._blob instanceof Blob &&
-      (f._blob.type.startsWith('image/') || f._blob.type.startsWith('video/'));
+    if (f._thumb || !(f._blob instanceof Blob)) return false;
+    var t = f._blob.type;
+    var e = (f.ext || '').toLowerCase();
+    return t.startsWith('image/') || t.startsWith('video/') || e === 'pdf' || e === 'docx';
   });
   if (needThumb.length === 0) return;
   var count = 0;
   for (var i = 0; i < needThumb.length; i++) {
     var f = needThumb[i];
-    var thumb = await generateThumbnail(f._blob);
+    var thumb = await generateThumbnail(f._blob, f.ext);
     if (thumb) {
       f._thumb = thumb;
       persistFile(f);
@@ -1281,11 +1361,15 @@ async function handleUploadedFiles(fileList) {
   // 第二步：异步生成封面缩略图，完成后更新卡片
   for (var i = 0; i < newFiles.length; i++) {
     var f = newFiles[i];
-    if (f._blob && (f._blob.type.startsWith('image/') || f._blob.type.startsWith('video/'))) {
-      var thumb = await generateThumbnail(f._blob);
-      if (thumb) {
-        f._thumb = thumb;
-        persistFile(f);
+    if (f._blob) {
+      var t = f._blob.type;
+      var e = (f.ext || '').toLowerCase();
+      if (t.startsWith('image/') || t.startsWith('video/') || e === 'pdf' || e === 'docx') {
+        var thumb = await generateThumbnail(f._blob, f.ext);
+        if (thumb) {
+          f._thumb = thumb;
+          persistFile(f);
+        }
       }
     }
   }
