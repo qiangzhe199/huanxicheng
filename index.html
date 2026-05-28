@@ -134,6 +134,28 @@ if (typeof tailwind !== 'undefined') {
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+  /* ========== 文件预览内容样式 ========== */
+  .docx-preview { font-size: 14px; line-height: 1.8; color: #333; }
+  .docx-preview h1 { font-size: 1.4em; font-weight: 700; margin: 0.6em 0 0.3em; }
+  .docx-preview h2 { font-size: 1.15em; font-weight: 600; margin: 0.5em 0 0.25em; }
+  .docx-preview h3 { font-size: 1.05em; font-weight: 600; margin: 0.4em 0 0.2em; }
+  .docx-preview p { margin: 0.3em 0; }
+  .docx-preview table { border-collapse: collapse; width: 100%; margin: 0.5em 0; font-size: 0.875em; }
+  .docx-preview td, .docx-preview th { border: 1px solid #ddd; padding: 6px 10px; vertical-align: top; }
+  .docx-preview ul, .docx-preview ol { padding-left: 1.5em; margin: 0.3em 0; }
+  .docx-preview img { max-width: 100%; height: auto; }
+  .docx-preview blockquote { border-left: 3px solid #e5e5e5; padding-left: 1em; margin: 0.5em 0; color: #666; }
+  .xlsx-preview table { border-collapse: collapse; font-size: 0.8em; }
+  .xlsx-preview td, .xlsx-preview th { border: 1px solid #ddd; padding: 4px 10px; white-space: nowrap; }
+  .xlsx-preview tr:nth-child(even) td { background: #fafafa; }
+  .xlsx-preview tr:first-child td, .xlsx-preview tr:first-child th { background: #f5f5f5; font-weight: 600; }
+  .text-preview { font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; tab-size: 4; }
+  .csv-table { border-collapse: collapse; font-size: 0.82em; width: 100%; }
+  .csv-table td, .csv-table th { border: 1px solid #ddd; padding: 4px 10px; white-space: nowrap; }
+  .csv-table tr:first-child td, .csv-table tr:first-child th { background: #f5f5f5; font-weight: 600; }
+  .preview-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; }
+  .preview-spinner { width: 32px; height: 32px; border: 3px solid #f0f0f0; border-top-color: #f97316; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   ::-webkit-scrollbar-thumb:hover { background: #bbb; }
   img { image-rendering: auto; }
   /* ========== 视图切换 ========== */
@@ -569,6 +591,33 @@ if (typeof tailwind !== 'undefined') {
       s.onerror = () => reject(new Error('CDN load failed: ' + src));
       document.head.appendChild(s);
     });
+  }
+
+  // ==================== 文档预览库动态加载 ====================
+  function loadMammoth() {
+    return new Promise(function(resolve) {
+      if (window.mammoth) { resolve(); return; }
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';
+      s.onload = function() { resolve(); };
+      s.onerror = function() { resolve(); };
+      document.head.appendChild(s);
+    });
+  }
+  function loadXLSX() {
+    return new Promise(function(resolve) {
+      if (window.XLSX) { resolve(); return; }
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      s.onload = function() { resolve(); };
+      s.onerror = function() { resolve(); };
+      document.head.appendChild(s);
+    });
+  }
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 
   async function initParticles() {
@@ -1153,39 +1202,204 @@ dropZone.querySelector('button').addEventListener('click', () => {
 });
 
 // ==================== 文件操作 ====================
-function previewFile(id) {
-  const f = files.find(x => x.id === id);
-  if (!f) return;
-  document.getElementById('previewTitle').textContent = f.name + '.' + f.ext;
-  const fi = getFileIcon(f.ext, f.cat);
-  const content = document.getElementById('previewContent');
-  const imgExts = ['png','jpg','jpeg','gif','webp','svg','bmp'];
-  const videoExts = ['mp4','mov','avi','webm','mkv'];
-  const isImg = imgExts.includes(f.ext);
-  const isVideo = videoExts.includes(f.ext);
-
-  const hasBlob = f._blob instanceof Blob || f._blob instanceof File;
-  const blobUrl = hasBlob ? URL.createObjectURL(f._blob) : null;
-  const imgSrc = (hasBlob && f._blob.type.startsWith('image/')) ? blobUrl : null;
-  const videoSrc = (hasBlob && f._blob.type.startsWith('video/')) ? blobUrl : null;
-
-  var mediaHtml = '';
-  if (isVideo) {
-    mediaHtml = '<div class=\"rounded-lg overflow-hidden mb-4 bg-black\"><video controls autoplay class=\"w-full max-h-[70vh] rounded-lg\" style=\"outline:none\" playsinline><source src=\"' + (videoSrc || '') + '\" type=\"video/' + (f.ext === 'mov' ? 'mp4' : f.ext) + '\">您的浏览器不支持视频播放</video><p class=\"text-center text-xs text-gray-400 mt-2\"><i class=\"fa fa-play-circle mr-1\"></i>原始清晰度在线播放</p></div>';
-  } else if (isImg) {
-    mediaHtml = '<div class=\"rounded-lg mb-4 inline-block overflow-hidden\">' + (imgSrc
-      ? '<img src=\"' + imgSrc + '\" alt=\"' + f.name + '\" class=\"max-w-full max-h-96 rounded-lg object-contain\" onload=\"this.dataset.loaded=\x271\x27\">'
-      : '<div class=\"w-64 h-48 mx-auto rounded-lg bg-gray-50 flex items-center justify-center\"><div class=\"text-center\"><i class=\"fa ' + fi.icon + ' text-gray-300 text-5xl mb-2\"></i><p class=\"text-sm text-gray-400\">' + f.name + '.' + f.ext + '</p></div></div>') + '</div>';
-  } else {
-    mediaHtml = '<div class=\"rounded-lg p-8 mb-4 inline-block\"><i class=\"fa ' + fi.icon + ' text-gray-200 text-7xl\"></i></div>';
-  }
-
-  content.innerHTML = '<div class=\"text-center\">' + mediaHtml + '<div class=\"bg-gray-50 rounded-lg p-4 mb-4 text-left max-w-sm mx-auto\"><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">文件名</span><span class=\"text-gray-700 font-medium\">' + f.name + '.' + f.ext + '</span></div><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">类型</span><span class=\"text-gray-700\">' + fi.label + ' 文件</span></div><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">大小</span><span class=\"text-gray-700\">' + f.size + '</span></div><div class=\"flex justify-between text-[13px] mb-1.5\"><span class=\"text-gray-400\">上传者</span><span class=\"text-gray-700\">' + f.author + '</span></div><div class=\"flex justify-between text-[13px]\"><span class=\"text-gray-400\">日期</span><span class=\"text-gray-700\">' + f.date + '</span></div>' + (f.downloads > 0 ? '<div class=\"flex justify-between text-[13px] mt-1.5\"><span class=\"text-gray-400\">下载次数</span><span class=\"text-gray-700\">' + f.downloads + '</span></div>' : '') + '</div><div class=\"flex justify-center gap-3\"><button onclick=\"downloadFile(' + f.id + ');closePreviewModal()\" class=\"btn-primary text-sm px-5 py-2 rounded-lg font-medium\"><i class=\"fa fa-download mr-1.5\"></i>下载' + (isImg ? '原图' : isVideo ? '视频' : '文件') + ' (' + f.size + ')</button><button onclick=\"closePreviewModal()\" class=\"text-sm px-5 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50\">关闭</button></div></div>';
-  document.getElementById('previewModal').classList.remove('hidden');
+function buildInfoHtml(f, fi) {
+  return '<div class="bg-gray-50 rounded-lg p-4 text-left max-w-sm mx-auto">'
+    + '<div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">文件名</span><span class="text-gray-700 font-medium">' + f.name + '.' + f.ext + '</span></div>'
+    + '<div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">类型</span><span class="text-gray-700">' + fi.label + ' 文件</span></div>'
+    + '<div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">大小</span><span class="text-gray-700">' + f.size + '</span></div>'
+    + '<div class="flex justify-between text-[13px] mb-1.5"><span class="text-gray-400">上传者</span><span class="text-gray-700">' + f.author + '</span></div>'
+    + '<div class="flex justify-between text-[13px]"><span class="text-gray-400">日期</span><span class="text-gray-700">' + f.date + '</span></div>'
+    + (f.downloads > 0 ? '<div class="flex justify-between text-[13px] mt-1.5"><span class="text-gray-400">下载次数</span><span class="text-gray-700">' + f.downloads + '</span></div>' : '')
+    + '</div>';
 }
 
+function buildDownloadBtn(f, label) {
+  return '<button onclick="downloadFile(' + f.id + ');closePreviewModal()" class="btn-primary text-sm px-5 py-2 rounded-lg font-medium"><i class="fa fa-download mr-1.5"></i>下载' + label + ' (' + f.size + ')</button>';
+}
+
+var _previewBlobUrls = [];
 function closePreviewModal() {
+  for (var i = 0; i < _previewBlobUrls.length; i++) { URL.revokeObjectURL(_previewBlobUrls[i]); }
+  _previewBlobUrls = [];
+  document.getElementById('previewContent').innerHTML = '';
   document.getElementById('previewModal').classList.add('hidden');
+}
+
+function parseCSV(text) {
+  var rows = [], row = [], field = '', inQ = false;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i+1] === '"') { field += '"'; i++; } else inQ = false; }
+      else field += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\n') {
+        if (text[i-1] === '\r') row[row.length-1] = row[row.length-1].replace(/\r$/, '');
+        row.push(field); if (field || row.some(function(c) { return c !== ''; })) rows.push(row);
+        row = []; field = '';
+      }
+      else if (ch !== '\r') field += ch;
+    }
+  }
+  row.push(field); if (field || row.some(function(c) { return c !== ''; })) rows.push(row);
+  return rows;
+}
+
+async function previewFile(id) {
+  var f = files.find(function(x) { return x.id === id; });
+  if (!f) return;
+  document.getElementById('previewTitle').textContent = f.name + '.' + f.ext;
+  var fi = getFileIcon(f.ext, f.cat);
+  var content = document.getElementById('previewContent');
+  var hasBlob = f._blob instanceof Blob || f._blob instanceof File;
+  var blobUrl = hasBlob ? URL.createObjectURL(f._blob) : null;
+  if (blobUrl) _previewBlobUrls.push(blobUrl);
+  var ext = f.ext.toLowerCase();
+
+  // 显示加载状态
+  content.innerHTML = '<div class="text-center"><div class="preview-loading"><div class="preview-spinner"></div><p class="text-sm text-gray-400 mt-3">加载预览中...</p></div></div>';
+  document.getElementById('previewModal').classList.remove('hidden');
+
+  var mediaHtml = '';
+  var downloadLabel = '文件';
+
+  // === 视频 ===
+  var videoExts = ['mp4','mov','avi','webm','mkv'];
+  if (videoExts.includes(ext)) {
+    downloadLabel = '视频';
+    if (blobUrl && f._blob.type.startsWith('video/')) {
+      mediaHtml = '<div class="rounded-lg overflow-hidden bg-black"><video controls autoplay class="w-full max-h-[65vh] rounded-lg" playsinline><source src="' + blobUrl + '" type="' + f._blob.type + '">浏览器不支持此视频格式</video></div><p class="text-center text-xs text-gray-400 mt-2"><i class="fa fa-play-circle mr-1"></i>原始清晰度在线播放</p>';
+    } else {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-video-camera text-gray-200 text-6xl mb-3 block"></i><p>无法预览此视频</p><p class="text-xs mt-1">请下载后播放</p></div>';
+    }
+  }
+  // === 图片 ===
+  else if (['png','jpg','jpeg','gif','webp','svg','bmp','ico'].includes(ext)) {
+    downloadLabel = '原图';
+    if (blobUrl) {
+      mediaHtml = '<img src="' + blobUrl + '" alt="' + f.name + '" class="max-w-full max-h-[70vh] rounded-lg object-contain">';
+    } else {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa ' + fi.icon + ' text-gray-200 text-6xl mb-3 block"></i><p>无法预览此图片</p></div>';
+    }
+  }
+  // === PDF ===
+  else if (ext === 'pdf') {
+    downloadLabel = 'PDF';
+    if (blobUrl) {
+      mediaHtml = '<iframe src="' + blobUrl + '" class="w-full rounded-lg border border-gray-200" style="height:75vh;min-height:500px"></iframe>';
+    } else {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-file-pdf-o text-gray-200 text-6xl mb-3 block"></i><p>无法预览此PDF</p></div>';
+    }
+  }
+  // === Word (docx) ===
+  else if (ext === 'docx' && hasBlob) {
+    downloadLabel = 'Word';
+    try {
+      await loadMammoth();
+      if (window.mammoth) {
+        var ab = await f._blob.arrayBuffer();
+        var result = await mammoth.convertToHtml({arrayBuffer: ab});
+        mediaHtml = '<div class="docx-preview bg-white rounded-lg border border-gray-200 p-6 max-h-[60vh] overflow-y-auto">' + result.value + '</div>';
+        if (result.messages && result.messages.length) {
+          mediaHtml += '<p class="text-xs text-gray-400 mt-2 text-center">注：Word 文档中的部分高级格式可能无法完整呈现</p>';
+        }
+      } else {
+        mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-file-word-o text-gray-200 text-6xl mb-3 block"></i><p>预览库加载失败</p><p class="text-xs mt-1">可下载后使用本地 Word 打开</p></div>';
+      }
+    } catch(e) {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-file-word-o text-gray-200 text-6xl mb-3 block"></i><p>文档解析失败</p><p class="text-xs mt-1">请下载后使用本地 Word 打开</p></div>';
+    }
+  }
+  // === CSV（用内置解析器，无需加载外部库） ===
+  else if (ext === 'csv' && hasBlob) {
+    downloadLabel = 'CSV';
+    try {
+      var csvText = await f._blob.text();
+      var csvRows = parseCSV(csvText);
+      if (csvRows.length > 0) {
+        var csvHtml = '<div class="max-h-[60vh] overflow-auto rounded-lg border border-gray-200 bg-white"><table class="csv-table">';
+        for (var ri = 0; ri < Math.min(csvRows.length, 5000); ri++) {
+          csvHtml += '<tr>';
+          for (var ci = 0; ci < csvRows[ri].length; ci++) {
+            csvHtml += '<td>' + escapeHtml(csvRows[ri][ci]) + '</td>';
+          }
+          csvHtml += '</tr>';
+        }
+        csvHtml += '</table></div>';
+        if (csvRows.length > 5000) csvHtml += '<p class="text-xs text-gray-400 mt-2 text-center">仅显示前 5000 行，完整数据请下载</p>';
+        mediaHtml = csvHtml;
+      } else {
+        mediaHtml = '<div class="text-center py-12 text-gray-400"><p>CSV 文件为空</p></div>';
+      }
+    } catch(e) {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-table text-gray-200 text-6xl mb-3 block"></i><p>CSV 解析失败</p><p class="text-xs mt-1">请下载后查看</p></div>';
+    }
+  }
+  // === Excel (xlsx/xls) ===
+  else if (['xlsx','xls'].includes(ext) && hasBlob) {
+    downloadLabel = (ext === 'csv' ? 'CSV' : 'Excel');
+    try {
+      await loadXLSX();
+      if (window.XLSX) {
+        var ab = await f._blob.arrayBuffer();
+        var wb = XLSX.read(new Uint8Array(ab), {type: 'array'});
+        var sheetName = wb.SheetNames[0];
+        if (sheetName) {
+          var html = XLSX.utils.sheet_to_html(wb.Sheets[sheetName], {editable: false});
+          mediaHtml = '<div class="xlsx-preview max-h-[60vh] overflow-auto rounded-lg border border-gray-200 bg-white"><div class="min-w-max">' + html + '</div></div>';
+          if (wb.SheetNames.length > 1) {
+            mediaHtml += '<p class="text-xs text-gray-400 mt-2 text-center">共 ' + wb.SheetNames.length + ' 个工作表，当前显示 "' + sheetName + '"</p>';
+          }
+        } else {
+          mediaHtml = '<div class="text-center py-12 text-gray-400"><p>工作簿为空</p></div>';
+        }
+      } else {
+        mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-table text-gray-200 text-6xl mb-3 block"></i><p>预览库加载失败</p><p class="text-xs mt-1">可下载后使用本地 Excel 打开</p></div>';
+      }
+    } catch(e) {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-table text-gray-200 text-6xl mb-3 block"></i><p>表格解析失败</p><p class="text-xs mt-1">请下载后使用本地 Excel 打开</p></div>';
+    }
+  }
+  // === 音频 ===
+  else if (['mp3','wav','flac','ogg','aac','m4a','wma','opus','weba'].includes(ext)) {
+    downloadLabel = '音频';
+    if (blobUrl) {
+      mediaHtml = '<div class="bg-gray-50 rounded-lg p-6 text-center"><i class="fa fa-music text-gray-200 text-5xl mb-4 block"></i><audio controls class="w-full max-w-lg"><source src="' + blobUrl + '" type="' + (f._blob.type || 'audio/mpeg') + '">浏览器不支持此音频格式</audio><p class="text-xs text-gray-400 mt-3">' + f.name + '.' + f.ext + '</p></div>';
+    } else {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><i class="fa fa-music text-gray-200 text-6xl mb-3 block"></i><p>无法预览此音频</p></div>';
+    }
+  }
+  // === 纯文本（含代码、配置文件等） ===
+  else if (['txt','md','log','json','xml','yaml','yml','toml','ini','cfg','conf','properties','env','sh','bat','ps1','py','js','ts','jsx','tsx','java','c','cpp','h','hpp','cs','go','rs','rb','php','sql','r','m','swift','kt','scala','lua','pl','css','scss','less','html','htm','vue','svelte','astro'].includes(ext) && hasBlob) {
+    downloadLabel = '文本';
+    try {
+      var text = await f._blob.text();
+      var maxLen = 500000;
+      if (text.length > maxLen) {
+        text = text.substring(0, maxLen) + '\n\n... (文件过大，仅显示前 ' + Math.floor(maxLen/1000) + 'KB，完整内容请下载)';
+      }
+      mediaHtml = '<pre class="text-preview bg-gray-50 rounded-lg border border-gray-200 p-5 max-h-[60vh] overflow-auto">' + escapeHtml(text) + '</pre>';
+    } catch(e) {
+      mediaHtml = '<div class="text-center py-12 text-gray-400"><p>文件编码不支持预览</p><p class="text-xs mt-1">请下载后查看</p></div>';
+    }
+  }
+  // === 不支持预览的文件类型（PPT、压缩包等） ===
+  else {
+    var msgMap = {
+      ppt: 'PPT 演示文稿暂不支持在线预览', pptx: 'PPT 演示文稿暂不支持在线预览',
+      zip: '压缩包暂不支持在线预览', rar: '压缩包暂不支持在线预览', '7z': '压缩包暂不支持在线预览', gz: '压缩包暂不支持在线预览', tar: '压缩包暂不支持在线预览',
+      doc: '旧版 .doc 格式不支持在线预览，请使用 .docx 格式或下载查看'
+    };
+    var hint = msgMap[ext] || '此文件类型暂不支持在线预览';
+    mediaHtml = '<div class="text-center py-12"><i class="fa ' + fi.icon + ' text-gray-200 text-7xl mb-4 block"></i><p class="text-gray-400">' + hint + '</p><p class="text-xs text-gray-400 mt-1">请点击下方按钮下载后查看</p></div>';
+    downloadLabel = fi.label;
+  }
+  if (['zip','rar','7z','gz','tar'].includes(ext)) downloadLabel = '压缩包';
+
+  // 组合最终内容
+  content.innerHTML = '<div class="text-center">' + mediaHtml + buildInfoHtml(f, fi) + '<div class="flex justify-center gap-3 mt-4">' + buildDownloadBtn(f, downloadLabel) + '<button onclick="closePreviewModal()" class="text-sm px-5 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">关闭</button></div></div>';
 }
 
 function downloadFile(id) {
