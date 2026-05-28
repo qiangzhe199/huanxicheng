@@ -118,6 +118,10 @@ if (typeof tailwind !== 'undefined') {
   .file-thumb-icon { opacity: 0.3; transition: opacity 0.2s; }
   .file-card:hover .file-thumb-icon { opacity: 0.5; }
   .file-card .thumb-duration { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.65); color: rgba(255,255,255,0.8); font-size: 10px; padding: 2px 6px; border-radius: 3px; }
+  .file-cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .file-card:hover .file-cover-img { transform: scale(1.03); transition: transform 0.3s; }
+  .file-thumb:has(.file-cover-img) .file-thumb-icon { display: none; }
+  .file-list-thumb { width: 48px; height: 36px; border-radius: 4px; object-fit: cover; flex-shrink: 0; border: 1px solid #f0f0f0; }
   /* ========== 按钮 ========== */
   .btn-primary { background: #f97316; color: #fff; transition: all 0.2s; border: none; }
   .btn-primary:hover { background: #ea580c; }
@@ -880,9 +884,8 @@ function persistFile(f) {
     author: f.author,
     downloads: f.downloads || 0,
   };
-  if (f._blob instanceof Blob) {
-    record._blob = f._blob;
-  }
+  if (f._blob instanceof Blob) { record._blob = f._blob; }
+  if (f._thumb instanceof Blob) { record._thumb = f._thumb; }
   store.put(record);
 }
 
@@ -919,6 +922,7 @@ function persistDownloadCount(f) {
       downloads: f.downloads || 0,
     };
     if (f._blob instanceof Blob) { record._blob = f._blob; }
+    if (f._thumb instanceof Blob) { record._thumb = f._thumb; }
     store.put(record);
   } catch(e) {}
 }
@@ -955,6 +959,11 @@ function getFileIcon(ext, cat) {
 
 // ==================== 渲染文件 ====================
 function renderFiles() {
+  // 清理之前的缩略图 Blob URL
+  for (var i = 0; i < files.length; i++) {
+    if (files[i]._thumbUrl) { URL.revokeObjectURL(files[i]._thumbUrl); delete files[i]._thumbUrl; }
+  }
+
   let filtered = currentCategory === 'all' ? [...files] : files.filter(f => f.cat === currentCategory);
 
   // 搜索过滤
@@ -986,8 +995,13 @@ function renderFiles() {
     grid.className = 'flex flex-col gap-0.5';
     grid.innerHTML = filtered.map((f, i) => {
       const fi = getFileIcon(f.ext, f.cat);
+      var listThumbHtml = '';
+      if (f._thumb instanceof Blob) {
+        f._thumbUrl = URL.createObjectURL(f._thumb);
+        listThumbHtml = '<img src="' + f._thumbUrl + '" class="file-list-thumb" loading="lazy" />';
+      }
       return '<div class="file-card bg-white px-4 py-3 border-b border-gray-50 flex items-center gap-4 hover:bg-gray-50/50 transition-colors" style="animation-delay:' + (i*0.02) + 's;border-radius:0;border:none;border-bottom:1px solid #f5f5f5">' +
-        '<i class="fa ' + fi.icon + ' text-gray-300 text-base w-5 text-center"></i>' +
+        (listThumbHtml || '<i class="fa ' + fi.icon + ' text-gray-300 text-base w-5 text-center"></i>') +
         '<div class="flex-1 min-w-0">' +
           '<p class="text-[13px] text-gray-700 truncate font-medium">' + f.name + '.' + f.ext + '</p>' +
           '<p class="text-[11px] text-gray-400">' + f.size + ' · ' + f.author + ' · ' + f.date + '</p>' +
@@ -1005,9 +1019,17 @@ function renderFiles() {
     grid.innerHTML = filtered.map((f, i) => {
       const fi = getFileIcon(f.ext, f.cat);
       const thumbClass = 'file-thumb-' + (f.cat || 'doc');
+      var coverHtml = '';
+      var showIcon = true;
+      if (f._thumb instanceof Blob) {
+        f._thumbUrl = URL.createObjectURL(f._thumb);
+        coverHtml = '<img src="' + f._thumbUrl + '" class="file-cover-img" loading="lazy" />';
+        showIcon = false;
+      }
       return '<div class="file-card animate-in" style="animation-delay:' + (i*0.03) + 's" onclick="previewFile(' + f.id + ')">' +
         '<div class="file-thumb ' + thumbClass + '">' +
-          '<i class="fa ' + fi.icon + ' file-thumb-icon" style="font-size:48px"></i>' +
+          coverHtml +
+          (showIcon ? '<i class="fa ' + fi.icon + ' file-thumb-icon" style="font-size:48px"></i>' : '') +
           (f.cat === 'video' ? '<span class="thumb-duration"><i class="fa fa-play mr-1"></i>视频</span>' : '') +
         '</div>' +
         '<div class="p-3">' +
@@ -1132,11 +1154,68 @@ function formatFileSize(bytes) {
   return bytes + ' B';
 }
 
-function handleUploadedFiles(fileList) {
+// ==================== 文件封面自动生成 ====================
+function generateThumbnail(file) {
+  return new Promise(function(resolve) {
+    if (file.type.startsWith('image/')) {
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function() {
+        URL.revokeObjectURL(url);
+        var canvas = document.createElement('canvas');
+        var maxW = 320, maxH = 210;
+        var w = img.width, h = img.height;
+        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+        if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.75);
+      };
+      img.onerror = function() { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    } else if (file.type.startsWith('video/')) {
+      var video = document.createElement('video');
+      var url = URL.createObjectURL(file);
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+      video.crossOrigin = 'anonymous';
+      var resolved = false;
+      var done = function(blob) {
+        if (resolved) return;
+        resolved = true;
+        URL.revokeObjectURL(url);
+        video.remove();
+        resolve(blob);
+      };
+      video.addEventListener('loadeddata', function() {
+        video.currentTime = Math.min(0.5, video.duration * 0.05 || 0.5);
+      });
+      video.addEventListener('seeked', function() {
+        try {
+          var canvas = document.createElement('canvas');
+          canvas.width = 320; canvas.height = 210;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, 320, 210);
+          canvas.toBlob(function(blob) { done(blob); }, 'image/jpeg', 0.75);
+        } catch(e) { done(null); }
+      });
+      video.addEventListener('error', function() { done(null); });
+      setTimeout(function() { done(null); }, 8000);
+    } else {
+      resolve(null);
+    }
+  });
+}
+
+async function handleUploadedFiles(fileList) {
   const today = new Date().toISOString().split('T')[0];
   let imgCount = 0, otherCount = 0;
+  var newFiles = [];
 
-  Array.from(fileList).forEach(file => {
+  // 第一步：立即添加所有文件到列表（先不生成封面）
+  Array.from(fileList).forEach(function(file) {
     const ext = getFileExtension(file.name);
     const cat = getFileCategory(file.type, ext);
     const isImg = file.type.startsWith('image/');
@@ -1154,8 +1233,8 @@ function handleUploadedFiles(fileList) {
       _blob: file,
     };
     files.unshift(newFile);
-    // 持久化到 IndexedDB，刷新/重启后仍保留
     persistFile(newFile);
+    newFiles.push(newFile);
   });
 
   updateCategoryCounts();
@@ -1164,6 +1243,19 @@ function handleUploadedFiles(fileList) {
   if (imgCount) showToast(imgCount + ' 个图片已上传 — 保持原始画质，永久保存');
   if (otherCount) showToast(otherCount + ' 个文件上传成功 — 已永久保存');
   closeUploadModal();
+
+  // 第二步：异步生成封面缩略图，完成后更新卡片
+  for (var i = 0; i < newFiles.length; i++) {
+    var f = newFiles[i];
+    if (f._blob && (f._blob.type.startsWith('image/') || f._blob.type.startsWith('video/'))) {
+      var thumb = await generateThumbnail(f._blob);
+      if (thumb) {
+        f._thumb = thumb;
+        persistFile(f);
+      }
+    }
+  }
+  renderFiles();
 }
 
 function updateCategoryCounts() {
