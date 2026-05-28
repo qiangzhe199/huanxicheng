@@ -597,6 +597,25 @@ if (typeof tailwind !== 'undefined') {
     });
   }
 
+  // ==================== CSS 动态加载（多 CDN 容灾） ====================
+  function loadCSS(urls) {
+    return new Promise(function(resolve) {
+      var idx = 0;
+      function tryNext() {
+        if (idx >= urls.length) { resolve(); return; }
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = urls[idx];
+        link.onload = function() { resolve(); };
+        link.onerror = function() { idx++; tryNext(); };
+        document.head.appendChild(link);
+      }
+      tryNext();
+      setTimeout(function() { resolve(); }, 8000);
+    });
+  }
+  window.loadCSS = loadCSS; // 导出到全局供底部资源加载脚本使用
+
   // ==================== 文档预览库动态加载（多 CDN 容灾） ====================
   function loadLib(name, cdns, onLoad) {
     return new Promise(function(resolve) {
@@ -649,7 +668,7 @@ if (typeof tailwind !== 'undefined') {
 
   async function initParticles() {
     if (!window.THREE) {
-      const cdns = ['https://unpkg.com/three@0.160.0/build/three.min.js','https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js'];
+      const cdns = ['https://unpkg.com/three@0.160.0/build/three.min.js','https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js','https://cdn.bootcdn.net/ajax/libs/three.js/0.160.0/three.min.js'];
       let ok=false;
       for (const c of cdns) { try { await loadScript(c); if(window.THREE){ok=true;break;} } catch(e){} }
       if(!ok){ console.warn('3D粒子系统暂不可用'); return; }
@@ -1704,13 +1723,12 @@ document.getElementById('previewModal').addEventListener('click', function(e) {
 
 </div><!-- /#appContent -->
 
-<!-- 非关键资源：在页面底部异步加载，不阻塞登录 -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- 核心资源：境内多 CDN 容灾加载 -->
 <script>
-// Tailwind CDN 加载后配置自定义颜色
-if (typeof tailwind !== 'undefined') {
-  tailwind.config = {
+(function() {
+  // Tailwind 自定义配置（必须在 CDN 脚本加载前设置）
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = {
     theme: {
       extend: {
         colors: {
@@ -1721,7 +1739,27 @@ if (typeof tailwind !== 'undefined') {
       }
     }
   };
-}
+
+  // Font Awesome CSS — 多 CDN 依次尝试
+  loadCSS([
+    'https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
+    'https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css',
+    'https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css'
+  ]);
+
+  // Tailwind CSS — Play CDN 为主，失败后尝试预构建 CSS
+  var twScript = document.createElement('script');
+  twScript.src = 'https://cdn.tailwindcss.com';
+  twScript.onerror = function() {
+    // Play CDN 失败，回退到预构建 Tailwind CSS
+    loadCSS([
+      'https://cdn.bootcdn.net/ajax/libs/tailwindcss/3.4.0/tailwind.min.css',
+      'https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.4.0/tailwind.min.css'
+    ]);
+  };
+  document.head.appendChild(twScript);
+})();
 </script>
 
 </body>
