@@ -1179,32 +1179,41 @@ function generateThumbnail(file) {
     } else if (file.type.startsWith('video/')) {
       var video = document.createElement('video');
       var url = URL.createObjectURL(file);
-      video.preload = 'metadata';
       video.muted = true;
       video.playsInline = true;
-      video.crossOrigin = 'anonymous';
-      var resolved = false;
+      video.preload = 'auto';
+      video.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;pointer-events:none';
+      document.body.appendChild(video);
+      var finished = false;
       var done = function(blob) {
-        if (resolved) return;
-        resolved = true;
+        if (finished) return;
+        finished = true;
+        clearTimeout(fallback);
         URL.revokeObjectURL(url);
-        video.remove();
-        resolve(blob);
+        video.pause();
+        if (video.parentNode) video.parentNode.removeChild(video);
+        resolve(blob || null);
       };
-      video.addEventListener('loadeddata', function() {
-        video.currentTime = Math.min(0.5, video.duration * 0.05 || 0.5);
-      });
-      video.addEventListener('seeked', function() {
+      var fallback = setTimeout(function() { done(null); }, 12000);
+      video.onloadedmetadata = function() {
+        var target = Math.min(0.3, (video.duration || 1) * 0.05);
+        if (target <= 0) target = 0.1;
+        video.currentTime = target;
+      };
+      video.onseeked = function() {
         try {
+          var vw = video.videoWidth || 320, vh = video.videoHeight || 180;
+          var ratio = Math.min(320 / vw, 210 / vh, 1);
           var canvas = document.createElement('canvas');
-          canvas.width = 320; canvas.height = 210;
+          canvas.width = Math.round(vw * ratio);
+          canvas.height = Math.round(vh * ratio);
           var ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0, 320, 210);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           canvas.toBlob(function(blob) { done(blob); }, 'image/jpeg', 0.75);
         } catch(e) { done(null); }
-      });
-      video.addEventListener('error', function() { done(null); });
-      setTimeout(function() { done(null); }, 8000);
+      };
+      video.onerror = function() { done(null); };
+      video.src = url;
     } else {
       resolve(null);
     }
